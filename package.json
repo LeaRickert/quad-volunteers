@@ -1,0 +1,19 @@
+{
+  "name": "nextvolunteers",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Volunteer sign-up app for learning NestJS and Next.js",
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev:api & npm run dev:web & wait",
+    "dev:api": "npm run start:dev -w api",
+    "dev:web": "npm run dev -w web",
+    "build": "npm run build -w api && npm run build -w web",
+    "lint": "npm run lint -w api && npm run lint -w web",
+    "test": "npm run test -w api",
+    "db:up": "docker compose up -d db",
+    "db:down": "docker compose down"
+  }
+}
