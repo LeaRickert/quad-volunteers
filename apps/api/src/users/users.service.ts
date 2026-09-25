@@ -53,10 +53,8 @@ export class UsersService {
   }
 
   async remove(id: string) {
-
     const user = await this.findOne(id); // your own method; already throws 404
     return this.usersRepository.remove(user);
-
   }
 }
 
