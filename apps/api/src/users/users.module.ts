@@ -8,5 +8,7 @@ import { User } from './entities/user.entity.js';
   imports: [TypeOrmModule.forFeature([User])],
   controllers: [UsersController],
   providers: [UsersService],
+  // Lets other modules (e.g. SignupsModule) inject UsersService.
+  exports: [UsersService],
 })
 export class UsersModule {}

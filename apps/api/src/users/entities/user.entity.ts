@@ -4,7 +4,10 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
+  type Relation,
 } from 'typeorm';
+import { Signup } from '../../signups/entities/signup.entity.js';
 
 export enum UserRole {
   ADMIN = 'admin',
@@ -26,4 +29,8 @@ export class User {
   createdAt: Date;
   @UpdateDateColumn()
   updatedAt: Date;
+
+  // Only populated when a query asks for it (relations: { signups: true }).
+  @OneToMany(() => Signup, (signup) => signup.user)
+  signups?: Relation<Signup[]>;
 }

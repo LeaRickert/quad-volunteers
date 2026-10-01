@@ -49,13 +49,16 @@ the bundled docs in `node_modules/next/dist/docs/` before writing Next.js code.
 nextvolunteers/
 ├── package.json          # workspaces + root scripts
 ├── docker-compose.yml    # optional reproducible Postgres (see below)
+├── docs/plans/           # feature plans (e.g. signups.md)
 ├── apps/
 │   ├── api/              # NestJS app, http://localhost:3001
 │   │   ├── src/
 │   │   │   ├── main.ts       # bootstrap: global ValidationPipe, CORS, port 3001
 │   │   │   ├── app.module.ts # ConfigModule + TypeOrmModule root config
+│   │   │   ├── common/       # shared helpers (database-errors.ts: isUniqueViolation)
 │   │   │   ├── users/        # resource: module, controller, service, entity, dto, specs
-│   │   │   └── events/       # resource: same shape as users/
+│   │   │   ├── events/       # resource: same shape as users/
+│   │   │   └── signups/      # users ↔ events join entity, nested routes
 │   │   ├── postman/      # nextvolunteers.postman_collection.json (API smoke tests)
 │   │   └── .env.example
 │   └── web/              # Next.js app, http://localhost:3000
@@ -85,6 +88,21 @@ Nest generators (run from `apps/api`): `npx nest g resource <name>`,
 - Business rules that span fields (e.g. `endsAt > startsAt`) live in the service and
   run on the merged entity, so partial PATCHes are checked against stored values.
 
+### Relations & cross-module conventions (see `signups/`)
+
+- Join entities get their own table with explicit FK columns (`userId`, `eventId`) plus
+  `@ManyToOne` + `@JoinColumn({ name: 'userId' })`, `onDelete: 'CASCADE'`, and
+  `@Unique([...])` for pairs that must not repeat.
+- Inverse sides are optional (`signups?: Relation<Signup[]>`): only populated when a
+  query asks for them. Always wrap relation types in `Relation<>` (ESM circular imports).
+- To reuse another resource's logic, export its service from its module and import the
+  module. Don't import modules in both directions; use `manager.countBy(Entity, ...)`
+  inside a transaction instead.
+- Read-check-write rules that must hold under concurrency (capacity) run in
+  `dataSource.transaction()` and lock the parent row with
+  `lock: { mode: 'pessimistic_write' }`. Every writer of that rule takes the same lock
+  (`SignupsService.create`, `EventsService.update`).
+
 ## Database
 
 - Local Postgres runs in the existing Docker container **`my-postgres`**:
@@ -100,7 +118,8 @@ Nest generators (run from `apps/api`): `npx nest g resource <name>`,
 - **`synchronize: true` (dev only):** tables are created/altered from entities on
   startup. No migrations yet. Replacing this with TypeORM migrations is a planned step
   and must happen before any real data or deployment.
-- Tables: `users`, `events` (no relations yet).
+- Tables: `users`, `events`, `signups` (FKs to both, `ON DELETE CASCADE`,
+  unique `(userId, eventId)`).
 
 ## Configuration
 
@@ -124,10 +143,26 @@ Nest generators (run from `apps/api`): `npx nest g resource <name>`,
 - REST API, JSON bodies, UUID ids. Errors: 400 validation / bad uuid, 404 not found,
   409 duplicate, 204 on delete.
 - Testing: Vitest unit tests per service (mocked repository via
-  `getRepositoryToken(Entity)`) and per DTO (`plainToInstance` + `validate`);
+  `getRepositoryToken(Entity)`) and per DTO (`plainToInstance` + `validate`).
+  Transactions: provide `DataSource` as `{ transaction: vi.fn((work) => work(manager)) }`
+  with a fake manager. Time-based rules: `vi.useFakeTimers({ toFake: ['Date'] })` +
+  `vi.setSystemTime()`. Specs using `@Type()` without Nest need `import 'reflect-metadata'`.
   Postman collection for end-to-end smoke tests (`npx newman run apps/api/postman/nextvolunteers.postman_collection.json`).
 
 ## Requirements
+
+### Done: Sign-ups (plan: `docs/plans/signups.md`)
+
+| Method | Path | Notes |
+|---|---|---|
+| POST | `/events/:eventId/signups` `{ userId }` | 201 · 400 event started · 404 event/user · 409 duplicate · 409 full |
+| GET | `/events/:eventId/signups` | sign-ups with `user`, oldest first |
+| DELETE | `/events/:eventId/signups/:userId` | 204 · 400 event started · 404 not signed up |
+| GET | `/users/:userId/signups` | sign-ups with `event`, by `event.startsAt` |
+
+- Cancelling deletes the row; spots taken = row count; `capacity: null` = unlimited.
+- `PATCH /events/:id` with `capacity` below the current sign-up count → 409.
+- Capacity is race-safe (transaction + row lock); verified with 10 parallel sign-ups.
 
 ### Done: Users & Events CRUD API
 
@@ -139,11 +174,12 @@ Both resources expose `GET /x`, `GET /x/:id`, `POST /x`, `PATCH /x/:id`, `DELETE
 - **Event:** `id` (uuid), `title`, `description?`, `location`, `startsAt`, `endsAt`
   (must be after `startsAt`), `capacity?` (int ≥ 1, null = unlimited), `createdAt`,
   `updatedAt`. Listed by `startsAt`, then `title`.
-- No authentication or authorization: any client can create any role, including `admin`.
+- No authentication or authorization: any client can create any role, including `admin`,
+  and sign up any user (`userId` comes from the request body).
 
 ### To be defined
 
-- Sign-ups: users joining events (relation, capacity enforcement)
+- Sign-up count on `GET /events`; waitlists
 - Event ownership (`createdBy` organizer)
 - Authentication and role-based permissions
 - TypeORM migrations (replace `synchronize`)

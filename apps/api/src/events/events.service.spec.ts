@@ -1,14 +1,22 @@
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  NotFoundException,
+} from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
 import { type Mock, vi } from 'vitest';
 import { EventsService } from './events.service.js';
 import { Event } from './entities/event.entity.js';
 
 type MockRepository = Record<
-  'create' | 'save' | 'find' | 'findOneBy' | 'merge' | 'remove',
+  'create' | 'save' | 'find' | 'findOneBy' | 'remove',
   Mock
 >;
+
+// update() runs inside dataSource.transaction(); the callback receives an EntityManager.
+type MockManager = Record<'findOne' | 'merge' | 'countBy' | 'save', Mock>;
 
 // Plain object shaped like a saved Event (05:00–09:00); `overrides` tweaks single fields.
 function makeEvent(overrides: Partial<Event> = {}): Event {
@@ -29,6 +37,7 @@ function makeEvent(overrides: Partial<Event> = {}): Event {
 describe('EventsService', () => {
   let service: EventsService;
   let repo: MockRepository;
+  let manager: MockManager;
 
   beforeEach(async () => {
     repo = {
@@ -36,16 +45,28 @@ describe('EventsService', () => {
       save: vi.fn(),
       find: vi.fn(),
       findOneBy: vi.fn(),
+      remove: vi.fn(),
+    };
+    manager = {
+      findOne: vi.fn(),
       // merge really copies fields in TypeORM; mimic that so the date check sees the merged values.
-      merge: vi.fn((target: Event, source: Partial<Event>) =>
+      // EntityManager.merge takes the entity class first: merge(Event, target, source).
+      merge: vi.fn((_entity: unknown, target: Event, source: Partial<Event>) =>
         Object.assign(target, source),
       ),
-      remove: vi.fn(),
+      countBy: vi.fn().mockResolvedValue(0),
+      // Echo back whatever is saved, like the real repository does.
+      save: vi.fn((e: Event) => Promise.resolve(e)),
+    };
+    // A fake transaction just runs the callback with our fake manager.
+    const dataSource = {
+      transaction: vi.fn((work: (m: MockManager) => unknown) => work(manager)),
     };
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         EventsService,
         { provide: getRepositoryToken(Event), useValue: repo },
+        { provide: DataSource, useValue: dataSource },
       ],
     }).compile();
 
@@ -124,15 +145,13 @@ describe('EventsService', () => {
   describe('update', () => {
     it('merges the changes into the existing event and saves it', async () => {
       const event = makeEvent();
-      repo.findOneBy.mockResolvedValue(event);
-      // Echo back whatever is saved, like the real repository does.
-      repo.save.mockImplementation((e: Event) => Promise.resolve(e));
+      manager.findOne.mockResolvedValue(event);
 
       const result = await service.update(event.id, {
         location: 'south beach',
       });
 
-      expect(repo.merge).toHaveBeenCalledWith(event, {
+      expect(manager.merge).toHaveBeenCalledWith(Event, event, {
         location: 'south beach',
       });
       expect(result).toMatchObject({
@@ -141,9 +160,19 @@ describe('EventsService', () => {
       });
     });
 
+    it('locks the event row while updating', async () => {
+      manager.findOne.mockResolvedValue(makeEvent());
+
+      await service.update('some-id', { title: 'x' });
+
+      expect(manager.findOne).toHaveBeenCalledWith(Event, {
+        where: { id: 'some-id' },
+        lock: { mode: 'pessimistic_write' },
+      });
+    });
+
     it('allows moving both dates when the result is still valid', async () => {
-      repo.findOneBy.mockResolvedValue(makeEvent());
-      repo.save.mockImplementation((e: Event) => Promise.resolve(e));
+      manager.findOne.mockResolvedValue(makeEvent());
 
       // New start (10:00) is after the old end (09:00); only valid because endsAt moves too.
       const result = await service.update('some-id', {
@@ -152,7 +181,7 @@ describe('EventsService', () => {
       });
 
       expect(result.startsAt).toEqual(new Date('2026-06-01T10:00:00Z'));
-      expect(repo.save).toHaveBeenCalled();
+      expect(manager.save).toHaveBeenCalled();
     });
 
     // PATCH sends one date; the check must compare it with the date already stored.
@@ -170,21 +199,57 @@ describe('EventsService', () => {
         changes: { endsAt: new Date('2026-06-01T05:00:00Z') },
       },
     ])('throws BadRequestException when $case', async ({ changes }) => {
-      repo.findOneBy.mockResolvedValue(makeEvent()); // 05:00–09:00
+      manager.findOne.mockResolvedValue(makeEvent()); // 05:00–09:00
 
       await expect(service.update('some-id', changes)).rejects.toThrow(
         BadRequestException,
       );
-      expect(repo.save).not.toHaveBeenCalled();
+      expect(manager.save).not.toHaveBeenCalled();
     });
 
     it('throws NotFoundException when the event does not exist', async () => {
-      repo.findOneBy.mockResolvedValue(null);
+      manager.findOne.mockResolvedValue(null);
 
       await expect(
         service.update('missing-id', { title: 'x' }),
       ).rejects.toThrow(NotFoundException);
-      expect(repo.save).not.toHaveBeenCalled();
+      expect(manager.save).not.toHaveBeenCalled();
+    });
+
+    describe('capacity', () => {
+      it('throws ConflictException when lowered below the sign-up count', async () => {
+        manager.findOne.mockResolvedValue(makeEvent({ capacity: 5 }));
+        manager.countBy.mockResolvedValue(3);
+
+        await expect(
+          service.update('some-id', { capacity: 2 }),
+        ).rejects.toThrow(ConflictException);
+        expect(manager.countBy).toHaveBeenCalledWith(expect.anything(), {
+          eventId: 'some-id',
+        });
+        expect(manager.save).not.toHaveBeenCalled();
+      });
+
+      it.each([
+        { case: 'equal to the sign-up count', capacity: 3 },
+        { case: 'above the sign-up count', capacity: 10 },
+        { case: 'cleared to unlimited (null)', capacity: null },
+      ])('allows a capacity $case', async ({ capacity }) => {
+        manager.findOne.mockResolvedValue(makeEvent({ capacity: 5 }));
+        manager.countBy.mockResolvedValue(3);
+
+        await expect(
+          service.update('some-id', { capacity }),
+        ).resolves.toMatchObject({ capacity });
+      });
+
+      it('does not count sign-ups when capacity is not being changed', async () => {
+        manager.findOne.mockResolvedValue(makeEvent());
+
+        await service.update('some-id', { title: 'x' });
+
+        expect(manager.countBy).not.toHaveBeenCalled();
+      });
     });
   });
 

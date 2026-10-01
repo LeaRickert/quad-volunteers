@@ -1,18 +1,21 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { CreateEventDto } from './dto/create-event.dto.js';
 import { UpdateEventDto } from './dto/update-event.dto.js';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { Event } from './entities/event.entity.js';
+import { Signup } from '../signups/entities/signup.entity.js';
 @Injectable()
 export class EventsService {
   constructor(
     @InjectRepository(Event)
     private readonly eventsRepository: Repository<Event>,
+    private readonly dataSource: DataSource,
   ) {}
   async create(createEventDto: CreateEventDto) {
     const event = this.eventsRepository.create(createEventDto);
@@ -38,10 +41,30 @@ export class EventsService {
   }
 
   async update(id: string, updateEventDto: UpdateEventDto) {
-    const event = await this.findOne(id);
-    this.eventsRepository.merge(event, updateEventDto);
-    this.#assertsEndsAfterStart(event);
-    return await this.eventsRepository.save(event);
+    // Same lock as SignupsService.create, so a sign-up can't slip in
+    // between counting sign-ups and lowering the capacity.
+    return this.dataSource.transaction(async (manager) => {
+      const event = await manager.findOne(Event, {
+        where: { id },
+        lock: { mode: 'pessimistic_write' },
+      });
+      if (!event) {
+        throw new NotFoundException(`Event with id ${id} not found`);
+      }
+      manager.merge(Event, event, updateEventDto);
+      this.#assertsEndsAfterStart(event);
+
+      if (updateEventDto.capacity != null) {
+        const taken = await manager.countBy(Signup, { eventId: id });
+        if (taken > updateEventDto.capacity) {
+          throw new ConflictException(
+            `Capacity cannot be lower than the ${taken} current sign-ups`,
+          );
+        }
+      }
+
+      return manager.save(event);
+    });
   }
 
   async remove(id: string) {

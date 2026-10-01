@@ -3,6 +3,8 @@ import { EventsController } from './events.controller.js';
 import { EventsService } from './events.service.js';
 import { Event } from './entities/event.entity.js';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
+
 describe('EventsController', () => {
   let controller: EventsController;
 
@@ -13,6 +15,7 @@ describe('EventsController', () => {
         EventsService,
         // Stand-in for the real TypeORM repository so no database is needed.
         { provide: getRepositoryToken(Event), useValue: {} },
+        { provide: DataSource, useValue: {} },
       ],
     }).compile();
 

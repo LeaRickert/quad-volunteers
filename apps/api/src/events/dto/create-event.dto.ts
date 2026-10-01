@@ -31,5 +31,5 @@ export class CreateEventDto {
   @IsOptional()
   @IsInt()
   @Min(1)
-  capacity?: number;
+  capacity?: number | null; // null (or omitted) = unlimited
 }

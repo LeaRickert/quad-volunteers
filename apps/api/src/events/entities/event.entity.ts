@@ -2,9 +2,12 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
+  type Relation,
 } from 'typeorm';
+import { Signup } from '../../signups/entities/signup.entity.js';
 
 @Entity('events')
 export class Event {
@@ -31,4 +34,8 @@ export class Event {
   createdAt: Date;
   @UpdateDateColumn()
   updatedAt: Date;
+
+  // Only populated when a query asks for it (relations: { signups: true }).
+  @OneToMany(() => Signup, (signup) => signup.event)
+  signups?: Relation<Signup[]>;
 }

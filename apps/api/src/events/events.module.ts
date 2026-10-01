@@ -8,5 +8,7 @@ import { Event } from './entities/event.entity.js';
   imports: [TypeOrmModule.forFeature([Event])],
   controllers: [EventsController],
   providers: [EventsService],
+  // Lets other modules (e.g. SignupsModule) inject EventsService.
+  exports: [EventsService],
 })
 export class EventsModule {}

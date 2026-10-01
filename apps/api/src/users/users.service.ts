@@ -7,7 +7,8 @@ import { CreateUserDto } from './dto/create-user.dto.js';
 import { UpdateUserDto } from './dto/update-user.dto.js';
 import { User } from './entities/user.entity.js';
 import { InjectRepository } from '@nestjs/typeorm';
-import { QueryFailedError, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
+import { isUniqueViolation } from '../common/database-errors.js';
 
 @Injectable()
 export class UsersService {
@@ -56,11 +57,4 @@ export class UsersService {
     const user = await this.findOne(id); // your own method; already throws 404
     return this.usersRepository.remove(user);
   }
-}
-
-function isUniqueViolation(error: unknown): boolean {
-  return (
-    error instanceof QueryFailedError &&
-    (error.driverError as { code?: string }).code === '23505'
-  );
 }
