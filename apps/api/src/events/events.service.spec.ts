@@ -1,29 +1,210 @@
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { type Mock, vi } from 'vitest';
 import { EventsService } from './events.service.js';
 import { Event } from './entities/event.entity.js';
-import { getRepositoryToken } from '@nestjs/typeorm';
+
+type MockRepository = Record<
+  'create' | 'save' | 'find' | 'findOneBy' | 'merge' | 'remove',
+  Mock
+>;
+
+// Plain object shaped like a saved Event (05:00–09:00); `overrides` tweaks single fields.
+function makeEvent(overrides: Partial<Event> = {}): Event {
+  return {
+    id: '5a8be171-f36d-419f-85c7-313410d09b73',
+    title: 'beach cleanup',
+    description: '',
+    location: 'beach',
+    startsAt: new Date('2026-06-01T05:00:00Z'),
+    endsAt: new Date('2026-06-01T09:00:00Z'),
+    capacity: 5,
+    createdAt: new Date('2026-01-01T00:00:00Z'),
+    updatedAt: new Date('2026-01-01T00:00:00Z'),
+    ...overrides,
+  };
+}
+
 describe('EventsService', () => {
   let service: EventsService;
+  let repo: MockRepository;
 
   beforeEach(async () => {
+    repo = {
+      create: vi.fn(),
+      save: vi.fn(),
+      find: vi.fn(),
+      findOneBy: vi.fn(),
+      // merge really copies fields in TypeORM; mimic that so the date check sees the merged values.
+      merge: vi.fn((target: Event, source: Partial<Event>) =>
+        Object.assign(target, source),
+      ),
+      remove: vi.fn(),
+    };
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         EventsService,
-        { provide: getRepositoryToken(Event), useValue: {} },
+        { provide: getRepositoryToken(Event), useValue: repo },
       ],
     }).compile();
 
     service = module.get<EventsService>(EventsService);
   });
 
-  it('should be defined', () => {
-    expect(service).toBeDefined();
+  describe('create', () => {
+    const base = { title: 'Beach Cleanup', location: 'beach' };
+
+    it('saves and returns a new event', async () => {
+      const dto = {
+        ...base,
+        startsAt: new Date('2026-06-01T05:00:00Z'),
+        endsAt: new Date('2026-06-01T09:00:00Z'),
+      };
+      const saved = makeEvent();
+      repo.create.mockReturnValue(dto);
+      repo.save.mockResolvedValue(saved);
+
+      await expect(service.create(dto)).resolves.toEqual(saved);
+      expect(repo.create).toHaveBeenCalledWith(dto);
+      expect(repo.save).toHaveBeenCalledWith(dto);
+    });
+
+    // The private date check is tested through create(): give it bad input,
+    // expect the exception, and make sure nothing reached the database.
+    it.each([
+      { case: 'ends before it starts', endsAt: '2026-06-01T04:00:00Z' },
+      { case: 'ends exactly when it starts', endsAt: '2026-06-01T05:00:00Z' },
+    ])(
+      'throws BadRequestException when the event $case',
+      async ({ endsAt }) => {
+        const dto = {
+          ...base,
+          startsAt: new Date('2026-06-01T05:00:00Z'),
+          endsAt: new Date(endsAt),
+        };
+        repo.create.mockReturnValue(dto);
+
+        await expect(service.create(dto)).rejects.toThrow(BadRequestException);
+        expect(repo.save).not.toHaveBeenCalled();
+      },
+    );
   });
 
-  it("not found", async () => {
+  describe('findAll', () => {
+    it('returns events ordered by start time, then title', async () => {
+      const events = [makeEvent(), makeEvent({ title: 'park cleanup' })];
+      repo.find.mockResolvedValue(events);
 
-  })
+      await expect(service.findAll()).resolves.toEqual(events);
+      expect(repo.find).toHaveBeenCalledWith({
+        order: { startsAt: 'ASC', title: 'ASC' },
+      });
+    });
+  });
+
+  describe('findOne', () => {
+    it('returns the event when it exists', async () => {
+      const event = makeEvent();
+      repo.findOneBy.mockResolvedValue(event);
+
+      await expect(service.findOne(event.id)).resolves.toBe(event);
+      expect(repo.findOneBy).toHaveBeenCalledWith({ id: event.id });
+    });
+
+    it('throws NotFoundException when no event matches', async () => {
+      repo.findOneBy.mockResolvedValue(null);
+
+      await expect(service.findOne('missing-id')).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+  });
+
+  describe('update', () => {
+    it('merges the changes into the existing event and saves it', async () => {
+      const event = makeEvent();
+      repo.findOneBy.mockResolvedValue(event);
+      // Echo back whatever is saved, like the real repository does.
+      repo.save.mockImplementation((e: Event) => Promise.resolve(e));
+
+      const result = await service.update(event.id, {
+        location: 'south beach',
+      });
+
+      expect(repo.merge).toHaveBeenCalledWith(event, {
+        location: 'south beach',
+      });
+      expect(result).toMatchObject({
+        title: 'beach cleanup',
+        location: 'south beach',
+      });
+    });
+
+    it('allows moving both dates when the result is still valid', async () => {
+      repo.findOneBy.mockResolvedValue(makeEvent());
+      repo.save.mockImplementation((e: Event) => Promise.resolve(e));
+
+      // New start (10:00) is after the old end (09:00); only valid because endsAt moves too.
+      const result = await service.update('some-id', {
+        startsAt: new Date('2026-06-01T10:00:00Z'),
+        endsAt: new Date('2026-06-01T12:00:00Z'),
+      });
+
+      expect(result.startsAt).toEqual(new Date('2026-06-01T10:00:00Z'));
+      expect(repo.save).toHaveBeenCalled();
+    });
+
+    // PATCH sends one date; the check must compare it with the date already stored.
+    it.each([
+      {
+        case: 'the new endsAt is before the stored startsAt',
+        changes: { endsAt: new Date('2026-06-01T04:00:00Z') },
+      },
+      {
+        case: 'the new startsAt is after the stored endsAt',
+        changes: { startsAt: new Date('2026-06-01T10:00:00Z') },
+      },
+      {
+        case: 'the new endsAt equals the stored startsAt',
+        changes: { endsAt: new Date('2026-06-01T05:00:00Z') },
+      },
+    ])('throws BadRequestException when $case', async ({ changes }) => {
+      repo.findOneBy.mockResolvedValue(makeEvent()); // 05:00–09:00
+
+      await expect(service.update('some-id', changes)).rejects.toThrow(
+        BadRequestException,
+      );
+      expect(repo.save).not.toHaveBeenCalled();
+    });
+
+    it('throws NotFoundException when the event does not exist', async () => {
+      repo.findOneBy.mockResolvedValue(null);
+
+      await expect(
+        service.update('missing-id', { title: 'x' }),
+      ).rejects.toThrow(NotFoundException);
+      expect(repo.save).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('remove', () => {
+    it('removes the loaded event', async () => {
+      const event = makeEvent();
+      repo.findOneBy.mockResolvedValue(event);
+
+      await service.remove(event.id);
+
+      expect(repo.remove).toHaveBeenCalledWith(event);
+    });
+
+    it('throws NotFoundException and removes nothing when the event does not exist', async () => {
+      repo.findOneBy.mockResolvedValue(null);
+
+      await expect(service.remove('missing-id')).rejects.toThrow(
+        NotFoundException,
+      );
+      expect(repo.remove).not.toHaveBeenCalled();
+    });
+  });
 });
-
-
-//for example not-found, duplicate email and date order.
