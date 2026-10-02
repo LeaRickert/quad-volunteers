@@ -1,0 +1,228 @@
+{
+  "v": 3,
+  "attachments": {},
+  "boards": {
+    "DetailDesktop.dc.html": {
+      "expand": "fill",
+      "h": 900,
+      "title": "Event detail · desktop · can join",
+      "w": 1280,
+      "x": 0,
+      "y": 4340
+    },
+    "DetailDesktopStaff.dc.html": {
+      "expand": "fill",
+      "h": 1300,
+      "title": "Event detail · desktop · organizer",
+      "w": 1280,
+      "x": 1360,
+      "y": 4340
+    },
+    "DetailMobileEnded.dc.html": {
+      "h": 860,
+      "title": "Detail · mobile · ended",
+      "w": 390,
+      "x": 4130,
+      "y": 4340
+    },
+    "DetailMobileFull.dc.html": {
+      "h": 1000,
+      "title": "Detail · mobile · full (409)",
+      "w": 390,
+      "x": 3660,
+      "y": 4340
+    },
+    "DetailMobileIn.dc.html": {
+      "h": 1080,
+      "title": "Detail · mobile · you’re in + cancel",
+      "w": 390,
+      "x": 3190,
+      "y": 4340
+    },
+    "DetailMobileJoin.dc.html": {
+      "h": 960,
+      "title": "Detail · mobile · can join",
+      "w": 390,
+      "x": 2720,
+      "y": 4340
+    },
+    "EventFormDesktop.dc.html": {
+      "expand": "fill",
+      "h": 1180,
+      "title": "Event form · desktop · errors",
+      "w": 1280,
+      "x": 1360,
+      "y": 7380
+    },
+    "EventFormMobile.dc.html": {
+      "h": 1500,
+      "title": "Event form · mobile · errors",
+      "w": 390,
+      "x": 4080,
+      "y": 7380
+    },
+    "EventsDesktop.dc.html": {
+      "expand": "fill",
+      "h": 1150,
+      "title": "Events list · desktop",
+      "w": 1280,
+      "x": 0,
+      "y": 2500
+    },
+    "EventsDesktopDark.dc.html": {
+      "expand": "fill",
+      "h": 1150,
+      "title": "Events list · desktop dark",
+      "w": 1280,
+      "x": 2300,
+      "y": 2500
+    },
+    "EventsMobile.dc.html": {
+      "h": 1420,
+      "title": "Events list · mobile",
+      "w": 390,
+      "x": 1360,
+      "y": 2500
+    },
+    "EventsMobileEmpty.dc.html": {
+      "h": 844,
+      "title": "Events list · no results",
+      "w": 390,
+      "x": 1830,
+      "y": 2500
+    },
+    "Main.dc.html": {
+      "h": 2080,
+      "title": "UI foundations",
+      "w": 1280,
+      "x": 0,
+      "y": 0
+    },
+    "ManageEventsDesktop.dc.html": {
+      "expand": "fill",
+      "h": 960,
+      "title": "Manage events · desktop",
+      "w": 1280,
+      "x": 0,
+      "y": 7380
+    },
+    "MobileMenu.dc.html": {
+      "h": 844,
+      "title": "Mobile menu · viewing as",
+      "w": 390,
+      "x": 1360,
+      "y": 0
+    },
+    "NotAllowedMobile.dc.html": {
+      "h": 844,
+      "title": "Not allowed · mobile",
+      "w": 390,
+      "x": 4550,
+      "y": 7380
+    },
+    "SignupsDesktop.dc.html": {
+      "expand": "fill",
+      "h": 760,
+      "title": "My sign-ups · desktop",
+      "w": 1280,
+      "x": 0,
+      "y": 6060
+    },
+    "SignupsMobile.dc.html": {
+      "h": 900,
+      "title": "My sign-ups · mobile",
+      "w": 390,
+      "x": 1360,
+      "y": 6060
+    },
+    "SignupsMobileEmpty.dc.html": {
+      "h": 844,
+      "title": "My sign-ups · empty",
+      "w": 390,
+      "x": 1830,
+      "y": 6060
+    },
+    "UsersDesktop.dc.html": {
+      "expand": "fill",
+      "h": 900,
+      "title": "Manage users · desktop",
+      "w": 1280,
+      "x": 2720,
+      "y": 7380
+    }
+  },
+  "createdOnFiles": {
+    "at": "2026-10-02T18:26:29Z",
+    "v": 1
+  },
+  "designSystems": [],
+  "launch": {
+    "view": "canvas"
+  },
+  "notes": {
+    "row0": {
+      "kind": "title1",
+      "maxW": 1750,
+      "text": "Foundations",
+      "w": 240,
+      "x": 0,
+      "y": -260
+    },
+    "row1": {
+      "kind": "title1",
+      "maxW": 3580,
+      "text": "Events list",
+      "w": 240,
+      "x": 0,
+      "y": 2240
+    },
+    "row2": {
+      "kind": "title1",
+      "maxW": 4520,
+      "text": "Event detail",
+      "w": 240,
+      "x": 0,
+      "y": 4080
+    },
+    "row3": {
+      "kind": "title1",
+      "maxW": 2220,
+      "text": "My sign-ups",
+      "w": 240,
+      "x": 0,
+      "y": 5800
+    },
+    "row4": {
+      "kind": "title1",
+      "maxW": 4940,
+      "text": "Manage",
+      "w": 240,
+      "x": 0,
+      "y": 7120
+    }
+  },
+  "order": [
+    "Main.dc.html",
+    "MobileMenu.dc.html",
+    "EventsDesktop.dc.html",
+    "EventsMobile.dc.html",
+    "EventsMobileEmpty.dc.html",
+    "EventsDesktopDark.dc.html",
+    "DetailDesktop.dc.html",
+    "DetailDesktopStaff.dc.html",
+    "DetailMobileJoin.dc.html",
+    "DetailMobileIn.dc.html",
+    "DetailMobileFull.dc.html",
+    "DetailMobileEnded.dc.html",
+    "SignupsDesktop.dc.html",
+    "SignupsMobile.dc.html",
+    "SignupsMobileEmpty.dc.html",
+    "ManageEventsDesktop.dc.html",
+    "EventFormDesktop.dc.html",
+    "UsersDesktop.dc.html",
+    "EventFormMobile.dc.html",
+    "NotAllowedMobile.dc.html"
+  ],
+  "pages": [],
+  "title": "nextvolunteers mockups"
+}

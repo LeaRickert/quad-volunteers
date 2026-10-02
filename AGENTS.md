@@ -50,6 +50,7 @@ nextvolunteers/
 ├── package.json          # workspaces + root scripts
 ├── docker-compose.yml    # optional reproducible Postgres (see below)
 ├── docs/plans/           # feature plans (e.g. signups.md)
+├── docs/design/          # UI design docs: goals, design system, screens, roadmap
 ├── apps/
 │   ├── api/              # NestJS app, http://localhost:3001
 │   │   ├── src/
@@ -183,7 +184,8 @@ Both resources expose `GET /x`, `GET /x/:id`, `POST /x`, `PATCH /x/:id`, `DELETE
 - Event ownership (`createdBy` organizer)
 - Authentication and role-based permissions
 - TypeORM migrations (replace `synchronize`)
-- Frontend pages in `apps/web` consuming the API
+- Frontend: designed in `docs/design/` (start with its README; build per `roadmap.md`
+  milestones, checking each screen spec's acceptance criteria)
 - Shared types between API and web (possible `packages/shared` workspace)
 - Pagination/filtering (e.g. upcoming events only)
 - Deployment (out of scope for now)
