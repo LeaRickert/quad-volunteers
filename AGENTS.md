@@ -63,7 +63,7 @@ the bundled docs in `node_modules/next/dist/docs/` before writing Next.js code.
 ## Layout
 
 ```
-nextvolunteers/
+quad-volunteers/
 ├── package.json          # workspaces + root scripts
 ├── docker-compose.yml    # optional reproducible Postgres (see below)
 ├── docs/spec.md          # product spec: vision, phases, user stories
@@ -152,8 +152,7 @@ Nest generators (run from `apps/api`): `npx nest g resource <name>`,
 ## Decisions so far
 
 - Name: **Quad Volunteers** (slug `quad-volunteers`, monogram "qv"), replacing the
-  working title `nextvolunteers`. Database is `quad_volunteers`;
-  the project folder is still named `nextvolunteers/`.
+  working title `nextvolunteers`.
 - Monorepo with npm workspaces (`apps/api`, `apps/web`).
 - API on port 3001, web on 3000; CORS enabled on the API for the web origin.
 - Next.js App Router + Tailwind + `src/` dir + `@/*` import alias.
