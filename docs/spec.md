@@ -1,4 +1,4 @@
-# nextvolunteers: project spec
+# Quad Volunteers: project spec
 
 Last updated: 2026-10-12. This is the single source for **what** we're building and
 **in what order**. How things look lives in [design/](design/README.md), and how

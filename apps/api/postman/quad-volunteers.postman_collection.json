@@ -1,6 +1,6 @@
 {
   "info": {
-    "name": "nextvolunteers API",
+    "name": "Quad Volunteers API",
     "description": "Smoke tests for the NestJS API (see the plan's Verification section). Run the whole collection, or a folder, with the Collection Runner. Requests run in order and pass ids along through collection variables. Start the API first: npm run dev:api",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },

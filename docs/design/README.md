@@ -1,4 +1,4 @@
-# UI Design: nextvolunteers web app
+# UI Design: Quad Volunteers web app
 
 Working goals for the Next.js frontend (`apps/web`). These docs describe *what* we are
 building and *why*. Implementation happens milestone by milestone (see

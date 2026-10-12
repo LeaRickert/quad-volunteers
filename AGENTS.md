@@ -78,7 +78,7 @@ nextvolunteers/
 │   │   │   ├── users/        # resource: module, controller, service, entity, dto, specs
 │   │   │   ├── events/       # resource: same shape as users/
 │   │   │   └── signups/      # users ↔ events join entity, nested routes
-│   │   ├── postman/      # nextvolunteers.postman_collection.json (API smoke tests)
+│   │   ├── postman/      # quad-volunteers.postman_collection.json (API smoke tests)
 │   │   └── .env.example
 │   └── web/              # Next.js app, http://localhost:3000
 │       ├── src/app/      # App Router routes
@@ -151,6 +151,9 @@ Nest generators (run from `apps/api`): `npx nest g resource <name>`,
 
 ## Decisions so far
 
+- Name: **Quad Volunteers** (slug `quad-volunteers`, monogram "qv"), replacing the
+  working title `nextvolunteers`. Rename is in progress: docs, `package.json` and the Postman collection are done;
+  mockup generator, DB name and project folder still use the old name.
 - Monorepo with npm workspaces (`apps/api`, `apps/web`).
 - API on port 3001, web on 3000; CORS enabled on the API for the web origin.
 - Next.js App Router + Tailwind + `src/` dir + `@/*` import alias.
@@ -166,7 +169,7 @@ Nest generators (run from `apps/api`): `npx nest g resource <name>`,
   Transactions: provide `DataSource` as `{ transaction: vi.fn((work) => work(manager)) }`
   with a fake manager. Time-based rules: `vi.useFakeTimers({ toFake: ['Date'] })` +
   `vi.setSystemTime()`. Specs using `@Type()` without Nest need `import 'reflect-metadata'`.
-  Postman collection for end-to-end smoke tests (`npx newman run apps/api/postman/nextvolunteers.postman_collection.json`).
+  Postman collection for end-to-end smoke tests (`npx newman run apps/api/postman/quad-volunteers.postman_collection.json`).
 
 ## Requirements
 

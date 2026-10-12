@@ -1,4 +1,4 @@
-# nextvolunteers
+# Quad Volunteers
 
 A campus volunteering app: students find events, sign up and track their volunteer hours;
 student organizations run events and report on them. It's a rebuild of an old student project,

@@ -14,7 +14,7 @@ Mobile (default):
 
 ```
 ┌────────────────────────────────────┐
-│ 🤝 nextvolunteers          [☰ Menu]│
+│ 🤝 Quad Volunteers        [☰ Menu]│
 ├────────────────────────────────────┤
 │ (menu open)                        │
 │  Events                            │
@@ -31,7 +31,7 @@ Desktop (`sm`+):
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
-│ 🤝 nextvolunteers   Events  My sign-ups  Manage events  Manage users │
+│ 🤝 Quad Volunteers  Events  My sign-ups  Manage events  Manage users │
 │                                        Viewing as: [Ada Lovelace ▾] │
 └──────────────────────────────────────────────────────────────────┘
 ```
@@ -40,8 +40,8 @@ Desktop (`sm`+):
 
 - White bar with a **3px red top rule** and a 1px gray-400 bottom border; 64px tall
   on desktop, 60px on mobile.
-- Brand: red 30px rounded square with a white "nv" and a small gold dot, then
-  "nextvolunteers" (17/600).
+- Brand: red 30px rounded square with a white "qv" and a small gold dot, then
+  "Quad Volunteers" (17/600).
 - Desktop nav: text links; the active one is gray-900 and semibold with a **2px red
   underline**; the others are gray-700.
 - Picker (desktop): "Viewing as" label, then an outlined button with an avatar, name,
@@ -75,4 +75,4 @@ Desktop (`sm`+):
 - [ ] Header appears on every page with brand linking to `/events`.
 - [ ] Switching user updates nav items and page content without a manual reload.
 - [ ] Works at 375px: nav collapses into a menu; all items reachable by keyboard.
-- [ ] Page `<title>` is "nextvolunteers" plus the page name (metadata per page).
+- [ ] Page `<title>` is "Quad Volunteers" plus the page name (metadata per page).
