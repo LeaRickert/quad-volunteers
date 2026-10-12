@@ -152,8 +152,8 @@ Nest generators (run from `apps/api`): `npx nest g resource <name>`,
 ## Decisions so far
 
 - Name: **Quad Volunteers** (slug `quad-volunteers`, monogram "qv"), replacing the
-  working title `nextvolunteers`. Rename is in progress: docs, `package.json` and the Postman collection are done;
-  mockup generator, DB name and project folder still use the old name.
+  working title `nextvolunteers`. Rename is in progress: docs, `package.json`, the Postman collection and the mockups are done;
+  DB name and project folder still use the old name.
 - Monorepo with npm workspaces (`apps/api`, `apps/web`).
 - API on port 3001, web on 3000; CORS enabled on the API for the web origin.
 - Next.js App Router + Tailwind + `src/` dir + `@/*` import alias.

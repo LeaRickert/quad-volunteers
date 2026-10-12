@@ -1,4 +1,4 @@
-# Shared tokens + building blocks for the nextvolunteers mockups.
+# Shared tokens + building blocks for the Quad Volunteers mockups.
 C = dict(g900='#12181c', g800='#252d33', g700='#3a4750', g600='#5c6b75', g500='#a1a9af',
          g400='#dfe6eb', g300='#eef4f8', w='#ffffff', r600='#9c1128', r500='#b9122d', r400='#d0012b',
          y600='#ffe478', y500='#ffcd00', y400='#dcb100',
@@ -130,10 +130,10 @@ def avatar(initials, size=30, kind='neutral'):
 def logo(dark=False, compact=False):
     t = theme(dark)
     mark = (f'<span style="display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 7px; '
-            f'background: {C["r400"]}; color: {C["w"]}; font-size: 14px; font-weight: 700; letter-spacing: -0.02em; position: relative">nv'
+            f'background: {C["r400"]}; color: {C["w"]}; font-size: 14px; font-weight: 700; letter-spacing: -0.02em; position: relative">qv'
             f'<span style="position: absolute; right: -3px; top: -3px; width: 9px; height: 9px; border-radius: 999px; background: {C["y500"]}; border: 2px solid {t["header"]}"></span></span>')
-    return (f'<a href="#" aria-label="nextvolunteers home" style="display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: {t["text"]}">'
-            f'{mark}<span style="font-size: 17px; font-weight: 600; letter-spacing: -0.01em">nextvolunteers</span></a>')
+    return (f'<a href="#" aria-label="Quad Volunteers home" style="display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: {t["text"]}">'
+            f'{mark}<span style="font-size: 17px; font-weight: 600; letter-spacing: -0.01em">Quad Volunteers</span></a>')
 
 USERS = {
     'volunteer': ('MC', 'Maya Chen', 'Volunteer'),

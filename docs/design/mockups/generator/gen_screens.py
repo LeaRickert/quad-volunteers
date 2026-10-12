@@ -419,7 +419,7 @@ for idx, (rtitle, names) in enumerate(ROWS):
     y += maxh + 120 + 300
 
 canvas = {'v': 3, 'createdOnFiles': {'v': 1, 'at': datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')},
-          'title': 'nextvolunteers mockups', 'launch': {'view': 'canvas'}, 'pages': [],
+          'title': 'Quad Volunteers mockups', 'launch': {'view': 'canvas'}, 'pages': [],
           'boards': boards, 'order': order, 'notes': notes, 'designSystems': []}
 json.dump(canvas, open('out/project/canvas.json', 'w'), indent=2)
 print(len(boards), 'boards')
