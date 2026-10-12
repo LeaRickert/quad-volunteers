@@ -1,6 +1,14 @@
 # nextvolunteers
 
-A basic volunteer sign-up app, built as a learning project for **NestJS** and **Next.js**.
+A campus volunteering app: students find events, sign up and track their volunteer hours;
+student organizations run events and report on them. It's a rebuild of an old student project,
+using **NestJS** for the API and **Next.js** for the web app.
+
+## Docs
+
+- [Project spec](docs/spec.md): vision, users, phases and user stories
+- [UI design](docs/design/README.md): design system, screen specs, mockups, UI roadmap
+- [Feature plans](docs/plans/): implementation plans per feature
 
 ## Stack
 

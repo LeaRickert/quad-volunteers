@@ -69,8 +69,8 @@ Browser ──(HTML / form POST)──▶ Next.js server ──(fetch)──▶ 
   Next.js 16 docs, `fetch` is not cached by default, so every page shows fresh data.
 - After a mutation, Server Actions call `refresh()` (from `next/cache`) to re-render the
   current route, or `redirect()` to another page (e.g. after creating an event).
-- Turning on Cache Components (`'use cache'`, `cacheTag`, `updateTag`) is a later
-  learning step, once the app works.
+- Turning on Cache Components (`'use cache'`, `cacheTag`, `updateTag`) is its own
+  step later, once the app works.
 
 ## Identity: "Viewing as"
 

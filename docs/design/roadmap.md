@@ -1,7 +1,8 @@
 # Roadmap: UI milestones
 
-Each milestone is small enough to learn one or two Next.js concepts, ends in something
-you can click, and has acceptance criteria (in the linked screen specs). Plan and
+Each milestone is a small, reviewable slice that introduces one or two Next.js
+features, ends in something you can click, and has acceptance criteria (in the linked
+screen specs). Plan and
 implement them one at a time; update the docs if a decision changes.
 
 | # | Milestone | Delivers | Next.js / React concepts | Backend |
@@ -29,7 +30,7 @@ implement them one at a time; update the docs if a decision changes.
 
 - **Frontend tests:** Vitest + React Testing Library for components, and/or Playwright
   for end-to-end flows? Decide before or during M4, when there's real interaction worth testing.
-- **Caching:** when to introduce Cache Components (`'use cache'`, tags) as a learning
+- **Caching:** when to introduce Cache Components (`'use cache'`, tags) as its own
   step. Probably after M7.
 - **Shared types:** keep hand-written `lib/types.ts`, or create `packages/shared`?
   Revisit when types drift.

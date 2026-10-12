@@ -5,13 +5,30 @@ project overview, setup and scripts.
 
 ## About this project
 
-A basic **volunteer sign-up app**, built **for learning purposes** so the developer
-understands the **NestJS** (backend) and **Next.js** (frontend) frameworks.
+A **campus volunteering app**: students find events, sign up and track volunteer hours;
+student organizations run events and report on them. NestJS API, Next.js web app,
+PostgreSQL.
 
-The full description and requirements will be fleshed out step by step. Update the
-"Requirements" and "Decisions" sections below as they are agreed on.
+**Product spec: [docs/spec.md](docs/spec.md).** It has the vision, roles, phases 1–7
+and user stories with acceptance criteria. Read it before planning a feature, and
+update it when goals change. This file keeps working conventions, decisions and what's
+built.
 
 ## How to work with me (IMPORTANT)
+
+**About the developer:** an experienced developer who knows JavaScript/TypeScript and
+general software development well, but is **new to NestJS and Next.js**. Skip
+explanations of language basics and general programming. Focus on framework idioms,
+conventions, and where NestJS or Next.js behaves differently from what an experienced
+developer would expect.
+
+**What they're practicing**, so support and reinforce it:
+- **Documentation discipline:** keep `docs/spec.md`, `docs/design/`, `docs/plans/` and
+  this file current with every change. Plans are written before features are built.
+- **Testing:** every change ships with tests (unit, plus Postman for API behavior), and
+  verification steps are part of every plan.
+- **AI-assisted workflow:** plan → review → implement in small, reviewable steps; the
+  developer decides, the agent proposes and explains.
 
 The developer is guiding development in small steps to understand each piece.
 
@@ -49,6 +66,7 @@ the bundled docs in `node_modules/next/dist/docs/` before writing Next.js code.
 nextvolunteers/
 ├── package.json          # workspaces + root scripts
 ├── docker-compose.yml    # optional reproducible Postgres (see below)
+├── docs/spec.md          # product spec: vision, phases, user stories
 ├── docs/plans/           # feature plans (e.g. signups.md)
 ├── docs/design/          # UI design docs: goals, design system, screens, roadmap
 ├── apps/
@@ -178,14 +196,14 @@ Both resources expose `GET /x`, `GET /x/:id`, `POST /x`, `PATCH /x/:id`, `DELETE
 - No authentication or authorization: any client can create any role, including `admin`,
   and sign up any user (`userId` comes from the request body).
 
-### To be defined
+### Next (see [docs/spec.md](docs/spec.md))
 
-- Sign-up count on `GET /events`; waitlists
-- Event ownership (`createdBy` organizer)
-- Authentication and role-based permissions
-- TypeORM migrations (replace `synchronize`)
-- Frontend: designed in `docs/design/` (start with its README; build per `roadmap.md`
-  milestones, checking each screen spec's acceptance criteria)
-- Shared types between API and web (possible `packages/shared` workspace)
-- Pagination/filtering (e.g. upcoming events only)
-- Deployment (out of scope for now)
+- **Phase 2, Web UI v1:** designed in `docs/design/`. Build per `design/roadmap.md`
+  milestones M0–M9, checking each screen spec's acceptance criteria and mockup.
+  It includes API changes for `signupCount` and event filters.
+- **Phase 3, Auth:** migrations first, then email + password limited to
+  `ALLOWED_EMAIL_DOMAINS`, JWT, guards.
+- **Then:** Phase 4 volunteer hours (check-in/out roster) and personal hour goals (hour types on events), Phase 5 organizations,
+  Phase 6 reports and CSV, Phase 7 notifications.
+- **Unscheduled:** shared API/web types (`packages/shared`), pagination, waitlists,
+  shifts, deployment.

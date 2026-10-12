@@ -13,7 +13,7 @@ building and *why*. Implementation happens milestone by milestone (see
 | [mockups/](mockups/README.md) | High-fidelity mockups of every main screen and state (canvas + offline previews) |
 | [architecture.md](architecture.md) | Routes, server/client split, data fetching, identity, errors |
 | [api-changes.md](api-changes.md) | Backend additions the UI needs |
-| [roadmap.md](roadmap.md) | Milestones with acceptance criteria and concepts learned |
+| [roadmap.md](roadmap.md) | Milestones with acceptance criteria and the Next.js features each uses |
 | [screens/](screens/) | One spec per screen: purpose, wireframes, states, criteria |
 
 Mockups: [canvas](https://claude.ai/artifact/YJrgecHDxzqWU9T2PRHkgD) · [offline previews](mockups/preview/index.html)
@@ -28,8 +28,12 @@ Screens:
 
 ## Goal
 
+This is **Phase 2 (Web UI v1)** of the [project spec](../spec.md). Later phases (auth,
+hours, organizations, reports) will add screens here.
+
+
 A friendly, mobile-first web app where volunteers find events and sign up, organizers
-run events, and admins manage people, built to learn Next.js 16 (App Router) on top
+run events, and admins manage people. It's built with Next.js 16 (App Router) on top
 of the existing NestJS API.
 
 ## Users
