@@ -125,10 +125,10 @@ Nest generators (run from `apps/api`): `npx nest g resource <name>`,
 ## Database
 
 - Local Postgres runs in the existing Docker container **`my-postgres`**:
-  `localhost:5432`, user `postgres`, password `mysecretpassword`, db `nextvolunteers`
+  `localhost:5432`, user `postgres`, password `mysecretpassword`, db `quad_volunteers`
   (local dev credentials only).
-- Connection string: `postgresql://postgres:mysecretpassword@localhost:5432/nextvolunteers`
-- Inspect: `docker exec -it my-postgres psql -U postgres -d nextvolunteers`
+- Connection string: `postgresql://postgres:mysecretpassword@localhost:5432/quad_volunteers`
+- Inspect: `docker exec -it my-postgres psql -U postgres -d quad_volunteers`
 - `docker-compose.yml` / `npm run db:up` is an alternative; don't run it while
   `my-postgres` is up (port 5432 conflict).
 - **ORM: TypeORM.** Connection set up in `app.module.ts` with
@@ -152,8 +152,8 @@ Nest generators (run from `apps/api`): `npx nest g resource <name>`,
 ## Decisions so far
 
 - Name: **Quad Volunteers** (slug `quad-volunteers`, monogram "qv"), replacing the
-  working title `nextvolunteers`. Rename is in progress: docs, `package.json`, the Postman collection and the mockups are done;
-  DB name and project folder still use the old name.
+  working title `nextvolunteers`. Database is `quad_volunteers`;
+  the project folder is still named `nextvolunteers/`.
 - Monorepo with npm workspaces (`apps/api`, `apps/web`).
 - API on port 3001, web on 3000; CORS enabled on the API for the web origin.
 - Next.js App Router + Tailwind + `src/` dir + `@/*` import alias.

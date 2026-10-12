@@ -19,7 +19,7 @@ using **NestJS** for the API and **Next.js** for the web app.
 
 ## Getting started
 
-1. Make sure Postgres is running on `localhost:5432` with a `nextvolunteers` database.
+1. Make sure Postgres is running on `localhost:5432` with a `quad_volunteers` database.
    Use your own container, or run `npm run db:up` to start the one in `docker-compose.yml`.
 2. Copy the env files:
    ```bash

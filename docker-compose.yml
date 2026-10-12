@@ -5,12 +5,12 @@
 services:
   db:
     image: postgres:17
-    container_name: nextvolunteers-db
+    container_name: quad-volunteers-db
     restart: unless-stopped
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: mysecretpassword
-      POSTGRES_DB: nextvolunteers
+      POSTGRES_DB: quad_volunteers
     ports:
       - "5432:5432"
     volumes:
