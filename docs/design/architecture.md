@@ -8,7 +8,7 @@ Next.js 16, App Router, `src/` directory. Next.js 16 differs from older docs: ch
 
 ```
 src/app/
-├── layout.tsx                 # html/body, fonts, <Header/>, tz cookie setter
+├── layout.tsx                 # html/body, fonts, <Header/>
 ├── page.tsx                   # redirect('/events')
 ├── events/
 │   ├── page.tsx               # Events list (searchParams: q, from, to, past)
@@ -40,7 +40,7 @@ src/
 │   ├── api.ts        # server-only fetch wrapper for the NestJS API
 │   ├── types.ts      # User, Event, Signup types (mirrors API responses)
 │   ├── current-user.ts  # reads the viewing-as cookie → User | null
-│   ├── time.ts       # date formatting in the viewer's time zone
+│   ├── time.ts       # date formatting in the campus time zone
 │   └── form-errors.ts   # maps API 400 messages to form fields
 └── actions/      # Server Actions ('use server'): signups.ts, events.ts, users.ts, identity.ts
 ```
@@ -87,19 +87,24 @@ Browser ──(HTML / form POST)──▶ Next.js server ──(fetch)──▶ 
   auth. Each action still re-checks the role to keep the habit, but real protection
   comes with authentication.
 
-## Time zones: viewer's local time
+## Time zones: one campus time zone
 
-Server Components render on the server, which does not know the viewer's time zone.
+One installation serves one campus, so the app has a single configured time zone.
 
-- A tiny client component in the root layout writes cookie `tz` =
-  `Intl.DateTimeFormat().resolvedOptions().timeZone` (e.g. `Europe/Berlin`) on first
-  load, and refreshes the page once if it changed.
-- `lib/time.ts` formats with `Intl.DateTimeFormat('en', { timeZone })`, falling back to
-  UTC (labelled "UTC") until the cookie exists.
-- **Form input:** `datetime-local` values have no zone. The event form includes a hidden
-  `tz` field. The Server Action converts "2026-06-01T09:00" in that zone to an ISO UTC
-  string before calling the API. The edit form converts stored UTC back to local for
-  the input's default value.
+- Env: `APP_TIME_ZONE` (IANA name, e.g. `America/New_York`; server-only) in
+  `apps/web/.env.local`. `lib/app-config.ts` (`getAppTimeZone()`) reads it and throws a
+  clear error if it's missing or not a valid zone, like `API_URL`.
+- The API stores and returns UTC instants. The web app formats them in the campus zone:
+  `lib/time.ts` takes the zone as an argument (`Intl.DateTimeFormat('en-US', { timeZone })`),
+  and pages pass `getAppTimeZone()`. Server rendering needs no cookie, client component
+  or refresh, so there is no flash of UTC, and pages don't become dynamic just for time.
+- Every viewer sees the same times (the campus's), which is what a volunteer needs
+  ("9:00 AM at the arboretum"), wherever their device is.
+- **Form input:** `datetime-local` values have no zone. The Server Action converts
+  "2026-06-01T09:00" in the campus zone to an ISO UTC string before calling the API. The
+  edit form converts stored UTC back to campus time for the input's default value.
+- **Date filters (M6):** `from`/`to` are calendar dates; the web converts them to UTC
+  instants using the campus zone before calling the API, so the API stays zone-agnostic.
 
 ## Mutations: Server Actions
 

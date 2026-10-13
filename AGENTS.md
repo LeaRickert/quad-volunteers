@@ -151,6 +151,8 @@ Nest generators (run from `apps/api`): `npx nest g resource <name>`,
 - `apps/web/.env.local` (from `.env.example`): `API_URL=http://localhost:3001`. Server-only
   (no `NEXT_PUBLIC_` prefix): read by the Next.js server through `lib/api.ts`, never sent
   to the browser.
+  Also `APP_TIME_ZONE` (IANA name, e.g. `America/New_York`): the campus time zone in which
+  event times are shown and entered; read by `lib/app-config.ts`, fails loudly if invalid.
 - `.env` files are gitignored; only `.env.example` files are committed.
 
 ## Decisions so far

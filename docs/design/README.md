@@ -85,7 +85,7 @@ hiding is **cosmetic** until the API enforces roles.
 | Forms | Dedicated pages (`/manage/.../new`, `/manage/.../[id]/edit`) |
 | Confirmation | Two-step confirm for cancel/delete |
 | Feedback | Inline messages (no toasts) |
-| Times | Shown in the viewer's local time zone |
+| Times | Shown in the campus time zone (`APP_TIME_ZONE`) |
 | Dark mode | Follows the system setting; light is the primary target, and the events list is mocked in dark to prove the palette |
 
 ## Out of scope for v1

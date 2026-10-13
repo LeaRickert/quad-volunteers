@@ -6,7 +6,7 @@ Screen spec: [events list](../design/screens/02-events-list.md). Builds on
 
 ## Goal
 
-`/events` shows upcoming events as cards (date in the viewer's time zone, location,
+`/events` shows upcoming events as cards (date in the campus time zone, location,
 spots badge, capacity bar) with loading, empty and error states. It starts with a small
 API change (`signupCount`), because the cards can't show spots without it.
 
@@ -22,14 +22,13 @@ API change (`signupCount`), because the cards can't show spots without it.
 | TypeORM `@VirtualColumn` (a computed, read-only field backed by a SQL subquery) | API `event.entity.ts` |
 | Server Component data fetching, independent reads in parallel (`Promise.all`) | `events/page.tsx` |
 | `loading.tsx` (Suspense boundary per route) and `error.tsx` (client error boundary) | `events/` |
-| `cookies()` (async in Next 16) read in a layout | `layout.tsx`, `lib/tz-cookie.ts` |
-| Client Component with `useEffect` + `router.refresh()` | `TimeZoneSync` |
+| Server-only config read from an env var, validated at use | `lib/app-config.ts` (`APP_TIME_ZONE`) |
 | `Intl.DateTimeFormat` with an explicit `timeZone` | `lib/time.ts` |
-| Unit tests for the web app (Vitest) | `lib/*.test.ts` |
+| Unit tests for the web app (Vitest) | `lib/*.spec.ts` |
 
 Read before coding (under `node_modules/next/dist/docs/01-app/`):
 `01-getting-started/06-fetching-data.md`, `03-api-reference/03-file-conventions/loading.md`,
-`.../error.md`, `.../04-functions/cookies.md`, `.../use-router.md`.
+`.../error.md`, `02-guides/environment-variables.md`.
 
 ## Decisions
 
@@ -57,12 +56,15 @@ Read before coding (under `node_modules/next/dist/docs/01-app/`):
    `past` filter is M6's API change 2. It's a one-line temporary filter, removed in M6.
    *Alternative:* show every event including past ones, with the "Ended" badge; simpler,
    but the heading "Upcoming events" would lie.
-4. **Time zone cookie, as designed in `architecture.md`.** Reading `cookies()` in the
-   root layout makes every route dynamic; fine (all pages read the API per request, and
-   M3's "Viewing as" needs cookies anyway). The cookie is user-controlled input, so the
-   server validates it and falls back to UTC.
+4. **One app-wide time zone, `APP_TIME_ZONE`** (supersedes the per-viewer cookie design).
+   One installation serves one campus, so every viewer sees campus time. It removes the
+   cookie, the client component and the first-visit UTC flash, and doesn't make routes
+   dynamic. The zone is server-only config; a missing or invalid value fails loudly
+   (like `API_URL`) instead of silently falling back to UTC. Consequences: M7's form
+   converts input in this zone (no hidden `tz` field), and M6's date filters convert
+   calendar dates to UTC instants with it before calling the API.
 5. **Pure logic in `lib/`, tested with Vitest**: `time.ts` (formatting) and `spots.ts`
-   (badge state). Components stay thin. Server Components and the cookie sync get
+   (badge state). Components stay thin. Server Components and `app-config.ts` get
    manual checks; React Testing Library and Playwright stay deferred to M4.
 6. **`Button` is introduced now**, minimal (`primary` and `secondary`, 44px), because
    `error.tsx` needs "Try again". M4 adds the pending state and the danger variants.
@@ -149,29 +151,23 @@ All functions take an IANA time zone argument, so they're deterministic:
 | `formatEyebrow(iso, tz)` | `SAT · OCT 10` |
 | `formatDateLong(iso, tz)` | `Saturday, October 10` |
 | `formatTimeRange(startIso, endIso, tz)` | `9:00 AM – 12:00 PM`; if the end falls on another day in `tz`, the end includes the date (`9:00 PM – Oct 11, 1:00 AM`) |
-| `resolveTimeZone(value)` | returns `value` if `Intl` accepts it, else `'UTC'` (cookie is untrusted) |
+| `isValidTimeZone(value)` | `true` if `Intl` accepts the zone name (used to validate `APP_TIME_ZONE`) |
 
 Use `Intl.DateTimeFormat('en-US', { timeZone, … })`, building the eyebrow from parts
-(`formatToParts`) so the separators are ours, not the locale's. Tests (`time.test.ts`):
+(`formatToParts`) so the separators are ours, not the locale's. Tests (`time.spec.ts`):
 same instant in two zones (`America/Los_Angeles` vs `Europe/Berlin`) gives different
-day/time, midnight-crossing range, a DST-change date, invalid zone → `UTC`, `undefined`
-→ `UTC`.
+day/time, midnight-crossing range, a DST-change date, valid and invalid zone names.
 
-### 5. Time zone cookie
+### 5. App time zone
 
-- `lib/tz-cookie.ts` (`server-only`): `getTimeZone()` reads `await cookies()` → `tz`,
-  passes it through `resolveTimeZone`. Also returns whether the cookie existed.
-- `components/TimeZoneSync.tsx` (`'use client'`): props `current: string | null` (what
-  the server used). In `useEffect`, read
-  `Intl.DateTimeFormat().resolvedOptions().timeZone`; if it differs from `current`, set
-  `document.cookie = 'tz=<zone>; path=/; max-age=31536000; samesite=lax'` and call
-  `router.refresh()` **once** (the effect only runs when the values differ, so no loop).
-  Renders `null`.
-- `layout.tsx` (make the component `async`): `const { zone, known } = await getTimeZone()`
-  and render `<TimeZoneSync current={known ? zone : null} />`.
-- First visit renders in UTC (labelled, per the architecture doc), then refreshes into
-  local time. Accept the one-time flash; it's the trade-off of server-rendered dates.
-  Note it in `architecture.md`.
+- `.env.example` and your `.env.local`: `APP_TIME_ZONE=America/New_York` (use the campus's
+  IANA zone), with a comment that event times are shown and entered in this zone.
+- `lib/app-config.ts` (`server-only`): `getAppTimeZone()` reads `process.env.APP_TIME_ZONE`
+  and throws a clear error if it's unset or `isValidTimeZone` rejects it.
+- No layout change, no cookie, no client component. Pages call `getAppTimeZone()` and pass
+  the zone down to the formatters.
+- Docs: `architecture.md` (time zones section), `design/README.md`, the manage-events
+  screen spec and the roadmap row already describe this design.
 
 ### 6. `lib/spots.ts` (pure, tested)
 
@@ -210,7 +206,7 @@ Specs in [design-system.md](../design/design-system.md); mockups `EventsDesktop`
 ### 8. Events page, loading, error
 
 - `events/page.tsx` (rewrite the M0 stub): `export const metadata = { title: 'Events' }`;
-  `const [events, { zone }] = await Promise.all([getEvents(), getTimeZone()])`; filter
+  `const events = await getEvents()` and `const timeZone = getAppTimeZone()`; filter
   upcoming (decision 3, with a `// removed in M6` comment); heading "Upcoming events",
   count line ("6 upcoming events", singular for 1); grid `grid-cols-1 sm:grid-cols-2
   lg:grid-cols-3 gap-4`; `EmptyState` ("No upcoming events yet. Check back soon!") when
@@ -225,7 +221,7 @@ Specs in [design-system.md](../design/design-system.md); mockups `EventsDesktop`
 - This plan: status → implemented, record deviations.
 - `roadmap.md`: M1 ✅; `AGENTS.md`: Layout/what's built, Testing decision (web tests are
   Vitest, pure helpers only for now), `signupCount` in the API table.
-- `architecture.md`: first-visit UTC flash note; `README.md`: `npm test` runs both apps.
+- `.env.example`/`AGENTS.md`: `APP_TIME_ZONE`; `README.md`: `npm test` runs both apps.
 
 ## Verification
 
@@ -241,9 +237,10 @@ midnight.
       left", "Only 2 left", "Last spot", "Full" (dark bar); the ended one is not listed.
 - [ ] Sign up a user to an event via Postman and reload: "N of M signed up" updates.
 - [ ] Sorted soonest first; count line is right, singular for one event.
-- [ ] Time zone: clear the `tz` cookie and reload: UTC flash, then local time. Set the
-      cookie to `Asia/Tokyo` in DevTools: times shift on reload. Set it to `garbage`:
-      falls back to UTC, no crash. No refresh loop (network tab shows one extra request).
+- [ ] Time zone: with `APP_TIME_ZONE=America/New_York`, an event at `13:00Z` in October shows
+      9:00 AM. Change it to `Asia/Tokyo` and restart: the same event shows 10:00 PM. Unset
+      it: the page shows the "APP_TIME_ZONE is not set" error. Set it to `garbage`: the
+      "not a valid IANA time zone" error. Two browsers in different zones see the same times.
 - [ ] The midnight-spanning event shows the end with its date.
 - [ ] Loading: temporarily add `await new Promise(r => setTimeout(r, 2000))` in the page;
       skeletons appear and match the card layout; remove it.

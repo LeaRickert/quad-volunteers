@@ -17,7 +17,7 @@ throwaway `/events` page proves the web app can read from the API.
 
 **Out of scope** (so M0 stays small): the "Viewing as" picker and role-aware nav (M3),
 active-link highlighting and the mobile menu (M3, they need `usePathname` and client
-state), real events UI (M1), the `tz` cookie (M1).
+state), real events UI (M1), time zone handling (M1).
 
 ## Concepts this milestone introduces
 
