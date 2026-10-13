@@ -21,6 +21,8 @@ export interface Event {
   startsAt: string;
   endsAt: string;
   capacity: number | null; // null = unlimited
+  // Returned by GET /events and GET /events/:id only (not by POST/PATCH responses).
+  signupCount: number;
   createdAt: string;
   updatedAt: string;
 }

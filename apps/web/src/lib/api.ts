@@ -1,5 +1,7 @@
 import "server-only";
 
+import type { Event } from "@/lib/types";
+
 // Thrown for any non-2xx response from the NestJS API. `messages` is always an array:
 // validation errors (400) arrive as a list, everything else as a single string.
 export class ApiError extends Error {
@@ -55,4 +57,8 @@ export async function apiFetch<T>(
   if (!res.ok) throw new ApiError(res.status, await readMessages(res));
   if (res.status === 204) return undefined as T;
   return (await res.json()) as T;
+}
+
+export function getEvents(): Promise<Event[]> {
+  return apiFetch<Event[]>("/events");
 }

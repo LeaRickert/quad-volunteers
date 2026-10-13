@@ -7,6 +7,7 @@ import {
   PrimaryGeneratedColumn,
   Unique,
   type Relation,
+  Index,
 } from 'typeorm';
 import { Event } from '../../events/entities/event.entity.js';
 import { User } from '../../users/entities/user.entity.js';
@@ -15,6 +16,7 @@ import { User } from '../../users/entities/user.entity.js';
 // so the number of rows for an event is the number of spots taken.
 @Entity('signups')
 @Unique(['userId', 'eventId']) // duplicate sign-up → Postgres 23505 → 409
+@Index(['eventId'])
 export class Signup {
   @PrimaryGeneratedColumn('uuid')
   id: string;

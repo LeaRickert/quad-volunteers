@@ -648,7 +648,8 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
-                  "pm.test(\"returns an array\", () => pm.expect(pm.response.json()).to.be.an(\"array\"));"
+                  "pm.test(\"returns an array\", () => pm.expect(pm.response.json()).to.be.an(\"array\"));",
+                  "pm.test(\"every event has a numeric signupCount\", () => pm.response.json().forEach((e) => pm.expect(e.signupCount).to.be.a(\"number\")));"
                 ]
               }
             }
@@ -676,7 +677,8 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));"
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"has a numeric signupCount\", () => pm.expect(pm.response.json().signupCount).to.be.a(\"number\"));"
                 ]
               }
             }
@@ -1440,6 +1442,65 @@
           ]
         },
         {
+          "name": "Get event: signupCount is 2",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/events/{{signupEventId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "events",
+                "{{signupEventId}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"signupCount is 2\", () => pm.expect(pm.response.json().signupCount).to.eql(2));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List events: signupCount is 2",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/events",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "events"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
+                  "const ev = pm.response.json().find((e) => e.id === pm.collectionVariables.get(\"signupEventId\"));",
+                  "pm.test(\"event is listed\", () => pm.expect(ev).to.exist);",
+                  "pm.test(\"signupCount is 2\", () => pm.expect(ev.signupCount).to.eql(2));"
+                ]
+              }
+            }
+          ]
+        },
+        {
           "name": "Sign up C: event full (409)",
           "request": {
             "method": "POST",
@@ -1790,6 +1851,35 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test(\"204 No Content\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get event: signupCount is 1",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/events/{{signupEventId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "events",
+                "{{signupEventId}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"signupCount is 1\", () => pm.expect(pm.response.json().signupCount).to.eql(1));"
                 ]
               }
             }

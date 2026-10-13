@@ -6,6 +6,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
   type Relation,
+  VirtualColumn,
 } from 'typeorm';
 import { Signup } from '../../signups/entities/signup.entity.js';
 
@@ -38,4 +39,10 @@ export class Event {
   // Only populated when a query asks for it (relations: { signups: true }).
   @OneToMany(() => Signup, (signup) => signup.event)
   signups?: Relation<Signup[]>;
+
+  @VirtualColumn({
+    type: 'int',
+    query: (alias) => `SELECT COUNT(1)::int FROM "signups" WHERE "signups"."eventId" = ${alias}."id"`,
+  })
+  signupCount?: number;
 }
