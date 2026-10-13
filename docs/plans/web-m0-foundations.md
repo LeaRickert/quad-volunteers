@@ -1,6 +1,11 @@
 # Plan: Web M0, Foundations
 
-**Status: planned.** First milestone of Phase 2 (see [roadmap](../design/roadmap.md)).
+**Status: implemented.** Deviations: the palette uses `@theme static` (Tailwind 4 only
+emits theme variables that a utility uses, and the semantic layer reads them with
+`var()`); the body font reads `var(--font-geist-sans)` directly (`--font-sans` is declared
+in `@theme inline`, which doesn't emit it); the focus ring uses the `foreground` color so
+it stays visible in dark mode; header text and links use `whitespace-nowrap` to fit 375px.
+Original plan: First milestone of Phase 2 (see [roadmap](../design/roadmap.md)).
 Screen spec: [layout & header](../design/screens/01-layout-header.md).
 
 ## Goal

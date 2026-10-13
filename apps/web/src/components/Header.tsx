@@ -8,7 +8,7 @@ const navItems = [
 export default function Header() {
   return (
     <header className="border-t-[3px] border-b border-t-primary border-b-border bg-surface">
-      <div className="mx-auto flex h-14 max-w-[1160px] items-center justify-between gap-2 px-4 sm:h-16 sm:px-8">
+      <div className="mx-auto flex h-14 max-w-[1160px] items-center justify-between gap-2 px-4 sm:h-15 sm:px-8">
         <Link href="/events" className="flex items-center gap-2.5">
           <span
             aria-hidden

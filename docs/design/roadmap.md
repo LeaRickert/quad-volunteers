@@ -7,7 +7,7 @@ implement them one at a time; update the docs if a decision changes.
 
 | # | Milestone | Delivers | Next.js / React concepts | Backend |
 |---|---|---|---|---|
-| M0 | **Foundations** | Design tokens in `globals.css` (from design-system.md / `Main` mockup), `lucide-react`, root layout + header shell (static nav), `lib/api.ts`, `lib/types.ts`, `API_URL` env, `/` → `/events` | Layouts, Tailwind `@theme`, `server-only`, env vars, `redirect` | — |
+| M0 ✅ | **Foundations** | Design tokens in `globals.css` (from design-system.md / `Main` mockup), `lucide-react`, root layout + header shell (static nav), `lib/api.ts`, `lib/types.ts`, `API_URL` env, `/` → `/events` | Layouts, Tailwind `@theme`, `server-only`, env vars, `redirect` | — |
 | M1 | **Events list (read-only)** | Cards with date, location, spots badge; loading and error states; tz cookie + `lib/time.ts` | Server Components fetching, `loading.tsx`, `error.tsx`, Client Component for tz cookie | API change 1: `signupCount` |
 | M2 | **Event detail (read-only)** | Detail page, capacity bar, not-found | Dynamic routes, async `params`, `notFound()`, `generateMetadata` | — |
 | M3 | **Viewing as** | Picker, role-aware nav, "You're in" markers | `cookies()`, Server Actions, Client vs Server Components, `usePathname`, `React.cache` | — |

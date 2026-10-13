@@ -99,7 +99,7 @@ Server Components unless marked **client**.
 
 | Component | Spec |
 |---|---|
-| `Header` | White bar, **3px red top rule**, 1px gray-400 bottom border, 64px tall (60px mobile). Brand mark: red 30px rounded square with white "nv" and a gold dot. Desktop nav: text links with a **2px red underline** on the active item. Right: "Viewing as" picker button (avatar + name + role + chevron). Mobile: avatar button + menu button (44px) |
+| `Header` | White bar, **3px red top rule**, 1px gray-400 bottom border, 64px tall (60px mobile). Brand mark: red 30px rounded square with white "qv" and a gold dot. Desktop nav: text links with a **2px red underline** on the active item. Right: "Viewing as" picker button (avatar + name + role + chevron). Mobile: avatar button + menu button (44px) |
 | `MobileMenu` **client** | Panel under the header with a 35% gray-900 backdrop. Nav items are 48px rows (active: red-tint background, red-500 text). Below them, a "Viewing as" listbox of users with a red check on the selected one |
 | `ViewingAsPicker` **client** | Button with `aria-haspopup="listbox"`; options show avatar, name and role |
 | `Avatar` | Circle with initials; volunteers gray-300 fill, organizers and admins gold fill |

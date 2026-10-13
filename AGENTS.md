@@ -81,7 +81,9 @@ quad-volunteers/
 │   │   ├── postman/      # quad-volunteers.postman_collection.json (API smoke tests)
 │   │   └── .env.example
 │   └── web/              # Next.js app, http://localhost:3000
-│       ├── src/app/      # App Router routes
+│       ├── src/app/      # App Router routes (/ redirects to /events)
+│       ├── src/components/  # design-system components (Header so far)
+│       ├── src/lib/      # api.ts (server-only fetch wrapper), types.ts
 │       └── .env.example
 ```
 
@@ -146,7 +148,9 @@ Nest generators (run from `apps/api`): `npx nest g resource <name>`,
   Loaded by `ConfigModule.forRoot({ isGlobal: true })`; inject `ConfigService` to read
   values (`getOrThrow` for required ones). `main.ts` reads `PORT`/`WEB_ORIGIN` from
   `process.env` with defaults.
-- `apps/web/.env.local` (from `.env.example`): `NEXT_PUBLIC_API_URL=http://localhost:3001`.
+- `apps/web/.env.local` (from `.env.example`): `API_URL=http://localhost:3001`. Server-only
+  (no `NEXT_PUBLIC_` prefix): read by the Next.js server through `lib/api.ts`, never sent
+  to the browser.
 - `.env` files are gitignored; only `.env.example` files are committed.
 
 ## Decisions so far
@@ -202,7 +206,10 @@ Both resources expose `GET /x`, `GET /x/:id`, `POST /x`, `PATCH /x/:id`, `DELETE
 
 - **Phase 2, Web UI v1:** designed in `docs/design/`. Build per `design/roadmap.md`
   milestones M0–M9, checking each screen spec's acceptance criteria and mockup.
-  It includes API changes for `signupCount` and event filters.
+  It includes API changes for `signupCount` and event filters. **M0 is done** (plan:
+  `docs/plans/web-m0-foundations.md`): design tokens, static header, `lib/api.ts`,
+  `lib/types.ts`, `API_URL`, `/` → `/events` with a throwaway events stub. Next: API
+  change 1 (`signupCount`), then M1.
 - **Phase 3, Auth:** migrations first, then email + password limited to
   `ALLOWED_EMAIL_DOMAINS`, JWT, guards.
 - **Then:** Phase 4 volunteer hours (check-in/out roster) and personal hour goals (hour types on events), Phase 5 organizations,
