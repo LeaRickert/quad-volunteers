@@ -7,8 +7,9 @@ Backend work the screens depend on. Each change keeps the existing conventions i
 
 Add `signupCount: number` to every event returned by `GET /events` and `GET /events/:id`.
 
-- Implementation idea: TypeORM query builder with
-  `loadRelationCountAndMap('event.signupCount', 'event.signups')`, or a `COUNT` subquery.
+- Implementation: a TypeORM `@VirtualColumn` on `Event` backed by a `COUNT` subquery
+  (`loadRelationCountAndMap` no longer exists in TypeORM 1.x). See
+  [plans/web-m1-events-list.md](../plans/web-m1-events-list.md).
 - `signupCount` is a computed response field. It is not a column, and it is not accepted in DTOs.
 - The UI derives "spots left" = `capacity - signupCount` (or "Unlimited" when
   `capacity` is null).
