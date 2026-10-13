@@ -12,7 +12,7 @@
     "dev:web": "npm run dev -w web",
     "build": "npm run build -w api && npm run build -w web",
     "lint": "npm run lint -w api && npm run lint -w web",
-    "test": "npm run test -w api",
+    "test": "npm run test -w api && npm run test -w web",
     "db:up": "docker compose up -d db",
     "db:down": "docker compose down"
   }

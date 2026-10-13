@@ -40,7 +40,7 @@ using **NestJS** for the API and **Next.js** for the web app.
 | `npm run dev:api` / `dev:web`    | Run one app                      |
 | `npm run build`                  | Build both apps                  |
 | `npm run lint`                   | Lint both apps                   |
-| `npm test`                       | Run API tests                    |
+| `npm test`                       | Run API and web tests            |
 | `npm run db:up` / `db:down`      | Start/stop the compose Postgres  |
 
 To run a script in one workspace, use `npm run <script> -w api` or `-w web`.
