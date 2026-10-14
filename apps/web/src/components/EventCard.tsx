@@ -15,7 +15,7 @@ export default function EventCard({
   timeZone: string;
   now: Date;
 }) {
-  const spots = getSpots(event, now);
+  const spots = getSpots( event, now);
 
   return (
     <div className="relative flex min-w-0 flex-col gap-3.5 rounded-card border border-border bg-surface p-5 shadow-card hover:border-border-strong">
