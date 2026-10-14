@@ -82,8 +82,10 @@ quad-volunteers/
 │   │   └── .env.example
 │   └── web/              # Next.js app, http://localhost:3000
 │       ├── src/app/      # App Router routes (/ redirects to /events)
-│       ├── src/components/  # design-system components (Header so far)
-│       ├── src/lib/      # api.ts (server-only fetch wrapper), types.ts
+│       ├── src/app/debug/   # dev-only /debug: every component state from sample data
+│       ├── src/components/  # design-system components (Header, EventCard, Badge, Button…)
+│       ├── src/lib/      # api.ts (server-only fetch wrapper), app-config.ts (APP_TIME_ZONE),
+│       │                 # time.ts, spots.ts (pure, tested), types.ts
 │       └── .env.example
 ```
 
@@ -175,6 +177,18 @@ Nest generators (run from `apps/api`): `npx nest g resource <name>`,
   with a fake manager. Time-based rules: `vi.useFakeTimers({ toFake: ['Date'] })` +
   `vi.setSystemTime()`. Specs using `@Type()` without Nest need `import 'reflect-metadata'`.
   Postman collection for end-to-end smoke tests (`npx newman run apps/api/postman/quad-volunteers.postman_collection.json`).
+- Web testing: Vitest (`apps/web`, `*.spec.ts`) for pure helpers in `lib/` (`time`, `spots`).
+  Server Components and the Next.js error/loading files are checked manually (and on the dev-only
+  `/debug` page); React Testing Library and Playwright are deferred until there is real
+  interaction to test (M4). `server-only` modules can't be imported by Vitest.
+- Web styling: components use semantic color tokens (`bg-surface`, `text-muted`,
+  `text-danger`…), never raw palette names (`gray-*`, `red-*`), because only the semantic
+  ones follow dark mode. Tailwind's default palette is removed, so unknown shades such as
+  `bg-gray-200` silently do nothing.
+- Time: the API stores UTC; the web app shows and reads times in one campus zone
+  (`APP_TIME_ZONE`), so there is no per-viewer time zone or cookie.
+- Events list: `GET /events` returns only upcoming and ongoing events; `signupCount` is a
+  `@VirtualColumn` (TypeORM 1.x has no `loadRelationCountAndMap`).
 
 ## Requirements
 
@@ -211,10 +225,11 @@ Both resources expose `GET /x`, `GET /x/:id`, `POST /x`, `PATCH /x/:id`, `DELETE
 
 - **Phase 2, Web UI v1:** designed in `docs/design/`. Build per `design/roadmap.md`
   milestones M0–M9, checking each screen spec's acceptance criteria and mockup.
-  It includes API changes for `signupCount` and event filters. **M0 is done** (plan:
-  `docs/plans/web-m0-foundations.md`): design tokens, static header, `lib/api.ts`,
-  `lib/types.ts`, `API_URL`, `/` → `/events` with a throwaway events stub. Next: API
-  change 1 (`signupCount`), then M1.
+  It includes API changes for `signupCount` and event filters. **M0 and M1 are done**
+  (plans: `docs/plans/web-m0-foundations.md`, `web-m1-events-list.md`): design tokens,
+  header, `lib/api.ts`, `APP_TIME_ZONE`, the events list with loading/empty/error states,
+  `signupCount` and the `past` filter on the API. Next: M2 (event detail), then M3
+  ("Viewing as"). `q`, `from` and `to` on `GET /events` come with M6.
 - **Phase 3, Auth:** migrations first, then email + password limited to
   `ALLOWED_EMAIL_DOMAINS`, JWT, guards.
 - **Then:** Phase 4 volunteer hours (check-in/out roster) and personal hour goals (hour types on events), Phase 5 organizations,

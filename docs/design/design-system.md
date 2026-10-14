@@ -51,6 +51,7 @@ Rules:
 | `border` | gray-400 | gray-700 |
 | `border-strong` | gray-500 | gray-600 |
 | `eyebrow` (date labels) | red-500 | yellow-600 |
+| `danger` (red text and borders on surfaces) | red-500 | red-tint |
 | `primary` / `on-primary` | red-400 / white | red-400 / white |
 
 Dark mode follows the system setting (see `EventsDesktopDark`). Red text is too dark to
@@ -113,6 +114,9 @@ Server Components unless marked **client**.
 | `InlineMessage` | `success` (gold-tint background, gold-400 border, check icon) · `error` (red-tint, red-400 border, alert icon) · `info` (white, gray-500 border, info icon). `role="status"`, `aria-live="polite"` |
 | `ConfirmButton` **client** | First click reveals a red-tint panel: question (15/600), consequence line, `danger` confirm + `secondary` keep. Focus moves to the confirm button |
 | `Segmented` | Upcoming / Past switch (manage events only): gray-300 track; active item is a white raised pill |
+| `SpotsBadge` | Maps an event's availability (`lib/spots.ts`) to a `Badge`: Open to all (outline, users icon), N spots left (neutral), Only N left / Last spot (warning, clock icon), Full, Ended (history icon) |
+| `EventGrid` | The events card grid: `repeat(auto-fill, minmax(300px, 1fr))`, 16px gap. Shared by the page and its skeleton |
+| `CardSkeleton` | Loading placeholder with the same row heights as `EventCard` (`bg-border` bars, `animate-pulse`) |
 | `EmptyState` | White card with dashed gray-500 border, 52px icon circle, title (17/600), one sentence, one action |
 | `DataTable` | White card, gray-300 header row (12px uppercase), 1px gray-400 row rules, horizontal scroll when narrow |
 | `NotAllowed` | Centered card: red-tint lock icon, "This page is for organizers", explanation, "Back to events" |

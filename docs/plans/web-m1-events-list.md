@@ -1,8 +1,31 @@
 # Plan: Web M1, Events list (read-only)
 
-**Status: planned.** Second milestone of Phase 2 (see [roadmap](../design/roadmap.md)).
+**Status: implemented** (a few manual checks are still open, see Verification).
+Second milestone of Phase 2 (see [roadmap](../design/roadmap.md)).
 Screen spec: [events list](../design/screens/02-events-list.md). Builds on
 [M0](web-m0-foundations.md).
+
+## Deviations from the plan as first written
+
+- **`signupCount` uses `@VirtualColumn`**, not `loadRelationCountAndMap` (removed in TypeORM
+  1.x), with `@Index(['eventId'])` on `Signup`. The service didn't change.
+- **One app-wide time zone** (`APP_TIME_ZONE`, `lib/app-config.ts`) replaced the per-viewer
+  cookie, `TimeZoneSync` and `lib/tz-cookie.ts`. `lib/time.ts` has `isValidTimeZone`, not
+  `resolveTimeZone`.
+- **`past` filter pulled forward** as API change 2a (new step 1b, `ListEventsQueryDto`).
+  `GET /events` returns only upcoming and ongoing events, so the page has no filter and the
+  public list has no past view.
+- **Web test files are `*.spec.ts`** (matching the API); Vitest config is `vitest.config.mts`
+  with `resolve.tsconfigPaths` (no `vite-tsconfig-paths` plugin).
+- **Extra components:** `SpotsBadge` (maps `getSpots` to a badge), `EventGrid` (grid shared
+  by the page and skeleton), `CardSkeleton`, and a semantic `danger` color token for red text
+  that stays readable in dark mode. `Button` grew hover, disabled and `danger-outline` /
+  `danger` / `ghost` variants earlier than M1 needs; `Badge` variants are `neutral`,
+  `outline`, `warning`, `full`, `ended`.
+- **`error.tsx`** uses `retry` (decision 8: the installed Next 16.3.6 passes `retry`; the
+  version table's `unstable_retry` name isn't what it provides) and reuses `EmptyState`.
+- **`/debug`** (development only, 404 in production): every component state rendered from
+  hand-made data in `app/debug/sample-events.ts`. Not in the original plan.
 
 ## Goal
 
@@ -278,39 +301,41 @@ Automated:
 - `npm test` (API + web), `npm run lint`, `npm run build` all pass; build works with the
   API stopped and `/events` is `ƒ` (dynamic).
 - Newman run of the Postman collection passes, including the new `signupCount` and `past` requests.
+- Status: all of the above pass (API 102 tests, web 23 tests, newman 59 requests / 98 assertions;
+  the build also succeeds with `API_URL` pointing at a dead server and `/events` is `ƒ`).
 
 Manual (API + web running). Seed with Postman/curl: an unlimited event, one with 8 spots
 free, one with 2 left, one with 1 left, one full, one already ended, and one that spans
 midnight.
-- [ ] Each seeded event shows the right badge and bar: "Open to all" (no bar), "8 spots
+- [x] Each seeded event shows the right badge and bar: "Open to all" (no bar), "8 spots
       left", "Only 2 left", "Last spot", "Full" (dark bar); the ended one is not listed (filtered by the API).
-- [ ] `curl localhost:3001/events` has no ended event; an event that ends in the future but
+- [x] `curl localhost:3001/events` has no ended event; an event that ends in the future but
       has already started is still listed.
-- [ ] Sign up a user to an event via Postman and reload: "N of M signed up" updates.
-- [ ] Sorted soonest first; count line is right, singular for one event.
+- [x] Sign up a user to an event via Postman and reload: "N of M signed up" updates.
+- [x] Sorted soonest first; count line is right. *(Singular "1 upcoming event" not tried.)*
 - [ ] Time zone: with `APP_TIME_ZONE=America/New_York`, an event at `13:00Z` in October shows
-      9:00 AM. Change it to `Asia/Tokyo` and restart: the same event shows 10:00 PM. Unset
+      9:00 AM *(this part checked)*. Change it to `Asia/Tokyo` and restart: the same event shows 10:00 PM. Unset
       it: the page shows the "APP_TIME_ZONE is not set" error. Set it to `garbage`: the
       "not a valid IANA time zone" error. Two browsers in different zones see the same times.
-- [ ] The midnight-spanning event shows the end with its date.
-- [ ] Loading: temporarily add `await new Promise(r => setTimeout(r, 2000))` in the page;
+- [x] The midnight-spanning event shows the end with its date.
+- [x] Loading: temporarily add `await new Promise(r => setTimeout(r, 2000))` in the page;
       skeletons appear and match the card layout; remove it.
-- [ ] Error: stop the API; "We couldn't load events." appears; restart and "Try again"
+- [x] Error: stop the API; "We couldn't load events." appears; restart and "Try again"
       recovers without a full reload.
-- [ ] Empty: with only past events (or no events), the empty state shows.
-- [ ] 375px: one column, no horizontal scroll; 640px: two columns; 1024px: three.
-- [ ] Keyboard: one Tab stop per card, visible focus ring around the title, Enter opens
+- [x] Empty: with only past events (or no events), the empty state shows.
+- [x] 375px: one column, no horizontal scroll *(checked)*; 640px: two columns; 1024px: three *(three checked)*.
+- [x] Keyboard: one Tab stop per card, visible focus ring around the title, Enter opens
       `/events/[id]` (404 until M2).
-- [ ] Dark mode: eyebrow is gold, cards on `surface`, badges legible.
-- [ ] Console has no errors or hydration warnings (the date formatting is
+- [x] Dark mode: eyebrow is gold, cards on `surface`, badges legible.
+- [x] Console has no errors or hydration warnings (the date formatting is
       server-only, so no hydration mismatch is expected).
 
 ## Acceptance (from [02-events-list.md](../design/screens/02-events-list.md))
 
-- [ ] Only upcoming and ongoing events are listed, soonest first (filtered by the API).
-- [ ] Spots badge correct for unlimited / plenty / few / full.
-- [ ] Single column at 375px; 2/3 columns at `sm`/`lg`.
-- [ ] Loading, empty and API-error states match the spec.
+- [x] Only upcoming and ongoing events are listed, soonest first (filtered by the API).
+- [x] Spots badge correct for unlimited / plenty / few / full.
+- [x] Single column at 375px *(checked)*; 2/3 columns at `sm`/`lg` *(3 checked at 1024px)*.
+- [x] Loading, empty and API-error states match the spec.
 - Deferred: "You're in" (M3); search, date range and the URL reflecting them (M6). The public
   list has no past view.
 
