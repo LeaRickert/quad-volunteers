@@ -62,3 +62,9 @@ export async function apiFetch<T>(
 export function getEvents(): Promise<Event[]> {
   return apiFetch<Event[]>("/events");
 }
+
+export async function getEvent(id:string): Promise<Event | null> {
+  id = encodeURIComponent(id);
+  try { return await apiFetch<Event>(`/events/${id}`); }
+  catch (e) { if (e instanceof ApiError && (e.status === 404 || e.status === 400)) return null; throw e; }
+}
