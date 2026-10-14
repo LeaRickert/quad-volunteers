@@ -2,9 +2,11 @@
 export default function CapacityBar({
   taken,
   capacity,
+  size = "md",
 }: {
   taken: number;
   capacity: number | null;
+  size?: "md" | "lg";
 }) {
   if (capacity === null || capacity <= 0) return null;
 
@@ -15,7 +17,7 @@ export default function CapacityBar({
     <div
       role="img"
       aria-label={`${taken} of ${capacity} spots taken`}
-      className="h-1.5 w-full overflow-hidden rounded-full bg-background"
+      className={`${size == "md" ? "h-1.5" : "h-3"} w-full overflow-hidden rounded-full bg-background`}
     >
       <div
         className={`h-full rounded-full ${full ? "bg-foreground" : "bg-yellow-400"}`}

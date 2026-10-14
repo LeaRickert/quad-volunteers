@@ -107,11 +107,11 @@ Server Components unless marked **client**.
 | `Button` | `primary` (red-400 fill, white text) · `secondary` (white, gray-500 border, gray-900 text) · `danger-outline` (white, red-400 border, red-500 text) · `danger` (red-600 fill) · `ghost`. Sizes 44px / 36px. `pending`: spinner + "Joining…" + disabled |
 | `Badge` | Pill, 24px tall, 12px/600, optional 13px icon. See table below |
 | `EventCard` | White card, 20px padding. Eyebrow date (+ "You're in" badge top right), title, time and location meta rows, divider, then "7 of 20 signed up" + spots badge, then a 6px capacity bar. Whole card is one link |
-| `CapacityBar` | 6px (cards) or 8px (detail) track in gray-300. Fill gold-400; gray-800 when full; hidden for unlimited. Has `role="img"` and a label like "7 of 20 spots taken" |
+| `CapacityBar` | 6px (`md`, cards) or 12px (`lg`, detail) track in gray-300. Fill gold-400; gray-800 when full; hidden for unlimited. Has `role="img"` and a label like "7 of 20 spots taken" |
 | `DateTile` | 56×60 outlined tile: month (11px red-500) over day (22px gray-900). Used on My sign-ups |
 | `FormField` | Label (14/600, red asterisk for required), 44px input, hint (13px muted), error (13px red-500 with alert icon; red border + 3px red-tint ring; `aria-invalid`, `aria-describedby`) |
 | `ErrorSummary` | Error message at the top of a form: "Please fix 3 problems before saving." with links to each field |
-| `InlineMessage` | `success` (gold-tint background, gold-400 border, check icon) · `error` (red-tint, red-400 border, alert icon) · `info` (white, gray-500 border, info icon). `role="status"`, `aria-live="polite"` |
+| `InlineMessage` | `success` (gold-tint background, gold-400 border, check icon) · `error` (red-tint, red-400 border, alert icon) · `info` (white, gray-500 border, info icon). `role="status"`, `aria-live="polite"`. The gold and red tints have no semantic token, so `success` and `error` set their own `dark:` colors (the one place raw palette names are allowed) |
 | `ConfirmButton` **client** | First click reveals a red-tint panel: question (15/600), consequence line, `danger` confirm + `secondary` keep. Focus moves to the confirm button |
 | `Segmented` | Upcoming / Past switch (manage events only): gray-300 track; active item is a white raised pill |
 | `SpotsBadge` | Maps an event's availability (`lib/spots.ts`) to a `Badge`: Open to all (outline, users icon), N spots left (neutral), Only N left / Last spot (warning, clock icon), Full, Ended (history icon) |

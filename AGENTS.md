@@ -184,7 +184,8 @@ Nest generators (run from `apps/api`): `npx nest g resource <name>`,
 - Web styling: components use semantic color tokens (`bg-surface`, `text-muted`,
   `text-danger`…), never raw palette names (`gray-*`, `red-*`), because only the semantic
   ones follow dark mode. Tailwind's default palette is removed, so unknown shades such as
-  `bg-gray-200` silently do nothing.
+  `bg-gray-200` silently do nothing. Exception: `InlineMessage` `success`/`error` use palette
+  names with `dark:` overrides, because the gold/red tints have no semantic token.
 - Time: the API stores UTC; the web app shows and reads times in one campus zone
   (`APP_TIME_ZONE`), so there is no per-viewer time zone or cookie.
 - Events list: `GET /events` returns only upcoming and ongoing events; `signupCount` is a

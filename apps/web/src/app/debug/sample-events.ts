@@ -200,3 +200,49 @@ export const sampleEvents: { note: string; event: Event }[] = [
     }),
   },
 ];
+
+export const summaryEvents: { note: string; event: Event }[] = [
+  {
+    note: "Default ( plenty, few, full)",
+    event: event("s1", {
+      title: "Arboretum Trail Cleanup",
+      startsAt: "2026-10-17T13:00:00.000Z",
+      endsAt: "2026-10-17T16:00:00.000Z",
+      capacity: 20,
+      signupCount: 7,
+    }),
+  },
+  {
+    note: "Event ended many helped",
+    event: event("s15", {
+      title: "Fall Festival Setup",
+      location: "The Quad",
+      startsAt: "2026-10-05T14:00:00.000Z",
+      endsAt: "2026-10-05T18:00:00.000Z",
+      capacity: 10,
+      signupCount: 9,
+    }),
+  },
+  {
+    note: "Event ended - 1 person helped",
+    event: event("s15", {
+      title: "Fall Festival Setup",
+      location: "The Quad",
+      startsAt: "2026-10-05T14:00:00.000Z",
+      endsAt: "2026-10-05T18:00:00.000Z",
+      capacity: 10,
+      signupCount: 1,
+    }),
+  },
+  {
+    note: "Open capacity",
+    event: event("s9", {
+      title: "Neighborhood Food Drive",
+      location: "Gym Parking Lot",
+      startsAt: "2026-10-27T13:00:00.000Z",
+      endsAt: "2026-10-27T17:00:00.000Z",
+      capacity: null,
+      signupCount: 148,
+    }),
+  },
+];

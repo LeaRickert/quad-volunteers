@@ -23,3 +23,27 @@ export function getSpots(
   if (left <= FEW_LEFT_MAX) return { kind: "few", left };
   return { kind: "plenty", left };
 }
+
+export type SignupSummary = {
+  strong: string;
+  rest: string;
+};
+export function getSignupSummary(
+  event: Pick<Event, "signupCount" | "capacity">,
+  spots: Spots,
+): SignupSummary {
+  switch (spots.kind) {
+    case "ended":
+      return {
+        strong: `${event.signupCount} ${event.signupCount === 1 ? "volunteer" : "volunteers"}`,
+        rest: `helped out`,
+      };
+    case "open":
+      return { strong: `${event.signupCount}`, rest: `signed up` };
+    default:
+      return {
+        strong: `${event.signupCount} of ${event.capacity}`,
+        rest: `spots taken`,
+      };
+  }
+}

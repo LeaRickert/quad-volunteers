@@ -61,7 +61,7 @@ Success: after join or cancel, the page refreshes and shows an inline success me
 "Your spot was cancelled."
 
 Layout: on desktop, details and "About this event" are on the left. On the right is an
-action card: "**7 of 20** spots taken" + badge, an 8px capacity bar, the action, and the
+action card: "**7 of 20** spots taken" + badge, a 12px capacity bar, the action, and the
 note "You can cancel any time before the event starts." On mobile the action card sits
 between the meta rows and "About this event".
 

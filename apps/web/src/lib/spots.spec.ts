@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getSpots } from "@/lib/spots";
+import { getSignupSummary, getSpots } from "@/lib/spots";
 
 const NOW = new Date("2026-10-10T12:00:00.000Z");
 const FUTURE = "2026-10-10T18:00:00.000Z";
@@ -54,5 +54,33 @@ describe("getSpots", () => {
         left: 13,
       });
     });
+  });
+});
+
+function summary(
+  capacity: number | null,
+  signupCount: number,
+  endsAt = FUTURE,
+) {
+  const event = { capacity, signupCount, endsAt };
+  const { strong, rest } = getSignupSummary(event, getSpots(event, NOW));
+  return `${strong} ${rest}`; // the sentence as rendered
+}
+
+describe("getSignupSummary", () => {
+  it("shows taken of capacity", () => {
+    expect(summary(20, 7)).toBe("7 of 20 spots taken");
+    expect(summary(10, 0)).toBe("0 of 10 spots taken");
+    expect(summary(10, 10)).toBe("10 of 10 spots taken"); // full
+  });
+
+  it("shows only the count when unlimited", () => {
+    expect(summary(null, 14)).toBe("14 signed up");
+  });
+
+  it("says how many helped out once ended, singular and plural", () => {
+    expect(summary(20, 18, PAST)).toBe("18 volunteers helped out");
+    expect(summary(20, 1, PAST)).toBe("1 volunteer helped out");
+    expect(summary(null, 0, PAST)).toBe("0 volunteers helped out");
   });
 });

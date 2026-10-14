@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import type { ReactNode } from "react";
+import { Fragment, ReactNode } from "react";
 import {
   CalendarX,
   Check,
@@ -19,8 +19,10 @@ import EmptyState from "@/components/EmptyState";
 import EventCard from "@/components/EventCard";
 import SpotsBadge from "@/components/SpotsBadge";
 import { getAppTimeZone } from "@/lib/app-config";
-import type { Spots } from "@/lib/spots";
-import { DEBUG_NOW, sampleEvents } from "./sample-events";
+import { getSignupSummary, getSpots, type Spots } from "@/lib/spots";
+import { DEBUG_NOW, sampleEvents, summaryEvents } from "./sample-events";
+import InlineMessage from "@/components/InlineMessage";
+import SignupSummaryText from "@/components/SignupSummaryText";
 
 export const metadata: Metadata = { title: "Debug" };
 
@@ -32,7 +34,13 @@ const buttonVariants = [
   "ghost",
 ] as const;
 
-const badgeVariants = ["neutral", "outline", "warning", "full", "ended"] as const;
+const badgeVariants = [
+  "neutral",
+  "outline",
+  "warning",
+  "full",
+  "ended",
+] as const;
 
 const spotsStates: { label: string; spots: Spots }[] = [
   { label: "plenty", spots: { kind: "plenty", left: 13 } },
@@ -44,7 +52,12 @@ const spotsStates: { label: string; spots: Spots }[] = [
   { label: "ended", spots: { kind: "ended" } },
 ];
 
-const barStates: { label: string; taken: number; capacity: number | null }[] = [
+const barStates: {
+  label: string;
+  taken: number;
+  capacity: number | null;
+  size?: "md" | "lg";
+}[] = [
   { label: "0 of 10", taken: 0, capacity: 10 },
   { label: "1 of 10", taken: 1, capacity: 10 },
   { label: "7 of 20", taken: 7, capacity: 20 },
@@ -52,8 +65,8 @@ const barStates: { label: string; taken: number; capacity: number | null }[] = [
   { label: "10 of 10 (full)", taken: 10, capacity: 10 },
   { label: "12 of 10 (over capacity, clamped)", taken: 12, capacity: 10 },
   { label: "unlimited (renders nothing)", taken: 5, capacity: null },
+  { label: "7 of 20 large", taken: 7, capacity: 20, size: "lg" },
 ];
-
 function Section({
   title,
   description,
@@ -67,9 +80,7 @@ function Section({
     <section className="flex flex-col gap-4">
       <div>
         <h2 className="text-lg font-semibold">{title}</h2>
-        {description && (
-          <p className="text-sm text-muted">{description}</p>
-        )}
+        {description && <p className="text-sm text-muted">{description}</p>}
       </div>
       {children}
     </section>
@@ -100,8 +111,8 @@ export default function DebugPage() {
         <h1 className="text-2xl font-semibold">UI debug</h1>
         <p className="text-foreground-secondary">
           Every component state with hand-made data. Development only. Dark mode
-          follows the OS, so switch it (or emulate it in DevTools) to check both.
-          Times are shown in {timeZone}; the page pretends it is{" "}
+          follows the OS, so switch it (or emulate it in DevTools) to check
+          both. Times are shown in {timeZone}; the page pretends it is{" "}
           {DEBUG_NOW.toISOString()}.
         </p>
       </header>
@@ -204,7 +215,9 @@ export default function DebugPage() {
             </div>
 
             <div className="flex flex-col gap-2">
-              <Label>link styled as a button (buttonStyles) in a plain inline row</Label>
+              <Label>
+                link styled as a button (buttonStyles) in a plain inline row
+              </Label>
               <div>
                 <Link
                   href="/events"
@@ -277,10 +290,10 @@ export default function DebugPage() {
       >
         <Panel>
           <div className="flex max-w-md flex-col gap-4">
-            {barStates.map(({ label, taken, capacity }) => (
+            {barStates.map(({ label, taken, capacity, size }) => (
               <div key={label} className="flex flex-col gap-1.5">
                 <Label>{label}</Label>
-                <CapacityBar taken={taken} capacity={capacity} />
+                <CapacityBar taken={taken} capacity={capacity} size={size} />
               </div>
             ))}
           </div>
@@ -317,6 +330,53 @@ export default function DebugPage() {
             action={<Button variant="secondary">Clear search</Button>}
           />
         </div>
+      </Section>
+
+      <Section title={"Inline Messages and Signup Summaries"}>
+        <Panel>
+          <div className="grid gap-5 md:grid-cols-2">
+            <div className="flex flex-col gap-2">
+              <Label>variant: info</Label>
+              <InlineMessage title="Title only message" />
+              <Label>variant: info</Label>
+              <InlineMessage
+                title="Inline message"
+                body={"Signups and cancellations are closed"}
+              />
+              <Label>variant: error</Label>
+              <InlineMessage
+                variant={"error"}
+                title="This event is full"
+                body="Someone toke the last spot a moment before you."
+              />
+              <Label>variant: success</Label>
+              <InlineMessage
+                variant={"success"}
+                title="You're in! See you there"
+                body="We'll see you at 9:00 AM"
+              />
+            </div>
+            <div>
+              <dl className={"grid grid-cols-[auto_1fr] gap-4"}>
+                {summaryEvents.map(({ note, event }) => (
+                  <Fragment key={event.id}>
+                    <dt>{note}</dt>
+                    <dd>
+                      {
+                        <SignupSummaryText
+                          summary={getSignupSummary(
+                            event,
+                            getSpots(event, DEBUG_NOW),
+                          )}
+                        />
+                      }
+                    </dd>
+                  </Fragment>
+                ))}
+              </dl>
+            </div>
+          </div>
+        </Panel>
       </Section>
     </div>
   );

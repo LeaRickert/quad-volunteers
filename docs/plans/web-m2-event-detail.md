@@ -96,8 +96,8 @@ Files: `lib/api.ts`, `lib/api.spec.ts` (new), `vitest.config.mts`.
 ### 2. Pure helper and small components
 
 - `lib/spots.ts`: add `getSignupSummary(event, spots)` (decision 7). Tests in `spots.spec.ts`:
-  each kind, 0 sign-ups, singular/plural for ended, unlimited.
-- `CapacityBar`: add `size?: 'md' | 'lg'` (6px for cards, 8px on the detail card).
+  each kind, 0 sign-ups, singular/plural for ended, unlimited. It returns `{ strong, rest }` (not one string) so the component can bold the first part; the spec helper joins them to assert on the rendered sentence.
+- `CapacityBar`: add `size?: 'md' | 'lg'` (6px for cards, 12px on the detail card; the design's 8px was changed on purpose).
 - `components/InlineMessage.tsx`: `variant` `info` (white, gray-500 border, info icon) ·
   `success` (gold-tint, gold-400 border, check icon) · `error` (red-tint, red-400 border,
   alert icon), a bold title and optional body, `role="status"` with `aria-live="polite"`.
@@ -120,7 +120,7 @@ Files: `lib/api.ts`, `lib/api.spec.ts` (new), `vitest.config.mts`.
 - "About this event" `h2` and the description with `whitespace-pre-line` (it's plain text from
   a textarea); omitted when `description` is `null` or empty.
 - Availability card (`shadow-card` surface): the `getSignupSummary` line + `SpotsBadge`; an
-  8px `CapacityBar` (not for unlimited or ended events); then by state:
+  12px (`lg`) `CapacityBar` (not for unlimited or ended events); then by state:
   - **full**: "This event is full" + "Spots open up if someone cancels, so check back later." +
     a secondary "Browse other events" link (`buttonStyles`);
   - **ended**: an `info` `InlineMessage` "This event has ended." / "Sign-ups and cancellations
