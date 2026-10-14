@@ -7,12 +7,14 @@ Screen spec: [events list](../design/screens/02-events-list.md). Builds on
 ## Goal
 
 `/events` shows upcoming events as cards (date in the campus time zone, location,
-spots badge, capacity bar) with loading, empty and error states. It starts with a small
-API change (`signupCount`), because the cards can't show spots without it.
+spots badge, capacity bar) with loading, empty and error states. It starts with two small
+API changes: `signupCount` (the cards can't show spots without it) and the `past` filter
+(`GET /events` returns only upcoming and ongoing events by default).
 
 **Out of scope** (later milestones, so M1 stays one slice):
 - "You're in" badge, "Create event" button in the empty state: need the current user (M3).
-- Search, date filters, Upcoming/Past switch, "Clear filters": M6 (with API change 2).
+- Search, date filters, "Clear filters": M6 (API change 2b). There is no past view on the
+  public list at all; only manage events (M7) requests `past=true`.
 - The event detail page the cards link to: M2. Until then the links 404.
 
 ## Concepts this milestone introduces
@@ -20,6 +22,7 @@ API change (`signupCount`), because the cards can't show spots without it.
 | Concept | Where |
 |---|---|
 | TypeORM `@VirtualColumn` (a computed, read-only field backed by a SQL subquery) | API `event.entity.ts` |
+| `@Query()` DTO, and `@Transform` for a query-string boolean | API `list-events-query.dto.ts` |
 | Server Component data fetching, independent reads in parallel (`Promise.all`) | `events/page.tsx` |
 | `loading.tsx` (Suspense boundary per route) and `error.tsx` (client error boundary) | `events/` |
 | Server-only config read from an env var, validated at use | `lib/app-config.ts` (`APP_TIME_ZONE`) |
@@ -52,10 +55,14 @@ Read before coding (under `node_modules/next/dist/docs/01-app/`):
    freshly saved entity, which has none. The web `Event` type declares it as required
    because the web only types list/detail responses; M7's forms redirect after saving and
    never read it from a mutation response.
-3. **"Upcoming" in M1 is filtered in the page** (`endsAt >= now`), because the API's
-   `past` filter is M6's API change 2. It's a one-line temporary filter, removed in M6.
-   *Alternative:* show every event including past ones, with the "Ended" badge; simpler,
-   but the heading "Upcoming events" would lie.
+3. **The API filters out past events by default; `past=true` is kept for manage events.**
+   `GET /events` returns upcoming and ongoing events (`endsAt >= now`). The `past` param is
+   pulled forward from API change 2 (as **2a**) so the page needs no temporary filter that
+   M6 would delete; `q`, `from` and `to` stay in M6 (2b). The public list has no Upcoming/Past
+   switch, so a visitor can't browse old events; the param stays, so M7's manage-events
+   screen (and a future "last term" view) need no API change. `GET /events/:id` still
+   returns past events, so detail pages and sign-up links keep working. `Ended` remains a
+   state of the badge for the detail page and My sign-ups, not for this list.
 4. **One app-wide time zone, `APP_TIME_ZONE`** (supersedes the per-viewer cookie design).
    One installation serves one campus, so every viewer sees campus time. It removes the
    cookie, the client component and the first-visit UTC flash, and doesn't make routes
@@ -124,6 +131,48 @@ and optionally a small `events.service.spec.ts` addition.
   running API; and `curl localhost:3001/events` shows a numeric `signupCount` on every
   event. Also check `PATCH /events/:id` with a new capacity still works (lock +
   virtual column in the same query).
+
+### 1b. API: `past` filter (API change 2a)
+
+Files: `apps/api/src/events/dto/list-events-query.dto.ts` (new), `events.controller.ts`,
+`events.service.ts`, their specs, a new DTO spec, the Postman collection.
+
+- **DTO:** `ListEventsQueryDto` with `past?: boolean`. The global pipe has `transform: true`
+  but **no implicit conversion**, so `?past=false` arrives as the *string* `"false"`, and
+  `@IsBoolean()` alone would reject it. Convert explicitly:
+  ```ts
+  @IsOptional()
+  @Transform(({ value }) => (value === 'true' ? true : value === 'false' ? false : value))
+  @IsBoolean()
+  past?: boolean;
+  ```
+  Any other value (`?past=maybe`) stays a string and fails `@IsBoolean()` with a 400.
+  Because of `forbidNonWhitelisted`, `?q=` (not yet allowed) is a 400 too; M6 adds it.
+- **Controller:** `findAll(@Query() query: ListEventsQueryDto)` passes it on.
+- **Service:** `findAll(query)` builds the `where` and order from `past`:
+
+  | `past` | where | order |
+  |---|---|---|
+  | `false` / absent | `endsAt >= now` (`MoreThanOrEqual`) | `startsAt ASC`, `title ASC` |
+  | `true` | `endsAt < now` (`LessThan`) | `startsAt DESC`, `title ASC` |
+
+  `now` is `new Date()` inside the method; the spec pins it with
+  `vi.useFakeTimers({ toFake: ['Date'] })` + `vi.setSystemTime()` (repo convention).
+  `findOne`, `update` and `SignupsService` are unchanged.
+- **Unit tests:** service `findAll` default (where `MoreThanOrEqual(now)`, ascending), with
+  `past: true` (`LessThan(now)`, descending), and an event ending exactly at `now` is
+  upcoming; DTO spec (`plainToInstance` + `validate`): absent, `'true'`, `'false'`,
+  `'maybe'` (error), unknown `q` (error under the app's whitelist pipe options, if you test
+  through the pipe); controller passes the query to the service.
+- **Postman:** the Signups folder already creates a future and a past event:
+  - **List events (default) includes the future event and not the past one.**
+  - **List events `?past=true` includes the past event and not the future one.**
+  - **List events `?past=maybe` is a 400.**
+  Check the other list requests: nothing currently expects a past event in the default list
+  (the `signupCount` checks use the future event), but confirm after running newman.
+- **Docs:** `api-changes.md` item 2 is already split into 2a/2b; mark 2a done.
+- **Verify:** `npm test -w api`, lint, build, newman, and `curl localhost:3001/events` no longer
+  lists ended events while `curl 'localhost:3001/events?past=true'` lists only them.
 
 ### 2. Web: type and fetch helper
 
@@ -206,8 +255,8 @@ Specs in [design-system.md](../design/design-system.md); mockups `EventsDesktop`
 ### 8. Events page, loading, error
 
 - `events/page.tsx` (rewrite the M0 stub): `export const metadata = { title: 'Events' }`;
-  `const events = await getEvents()` and `const timeZone = getAppTimeZone()`; filter
-  upcoming (decision 3, with a `// removed in M6` comment); heading "Upcoming events",
+  `const events = await getEvents()` (the API already returns only upcoming and ongoing
+  events, decision 3) and `const timeZone = getAppTimeZone()`; heading "Upcoming events",
   count line ("6 upcoming events", singular for 1); grid `grid-cols-1 sm:grid-cols-2
   lg:grid-cols-3 gap-4`; `EmptyState` ("No upcoming events yet. Check back soon!") when
   empty. One `now = new Date()` per render, passed down.
@@ -219,7 +268,7 @@ Specs in [design-system.md](../design/design-system.md); mockups `EventsDesktop`
 ### 9. Docs
 
 - This plan: status → implemented, record deviations.
-- `roadmap.md`: M1 ✅; `AGENTS.md`: Layout/what's built, Testing decision (web tests are
+- `api-changes.md`: mark 2a done; `roadmap.md`: M1 ✅; `AGENTS.md`: Layout/what's built, Testing decision (web tests are
   Vitest, pure helpers only for now), `signupCount` in the API table.
 - `.env.example`/`AGENTS.md`: `APP_TIME_ZONE`; `README.md`: `npm test` runs both apps.
 
@@ -228,13 +277,15 @@ Specs in [design-system.md](../design/design-system.md); mockups `EventsDesktop`
 Automated:
 - `npm test` (API + web), `npm run lint`, `npm run build` all pass; build works with the
   API stopped and `/events` is `ƒ` (dynamic).
-- Newman run of the Postman collection passes, including the new `signupCount` requests.
+- Newman run of the Postman collection passes, including the new `signupCount` and `past` requests.
 
 Manual (API + web running). Seed with Postman/curl: an unlimited event, one with 8 spots
 free, one with 2 left, one with 1 left, one full, one already ended, and one that spans
 midnight.
 - [ ] Each seeded event shows the right badge and bar: "Open to all" (no bar), "8 spots
-      left", "Only 2 left", "Last spot", "Full" (dark bar); the ended one is not listed.
+      left", "Only 2 left", "Last spot", "Full" (dark bar); the ended one is not listed (filtered by the API).
+- [ ] `curl localhost:3001/events` has no ended event; an event that ends in the future but
+      has already started is still listed.
 - [ ] Sign up a user to an event via Postman and reload: "N of M signed up" updates.
 - [ ] Sorted soonest first; count line is right, singular for one event.
 - [ ] Time zone: with `APP_TIME_ZONE=America/New_York`, an event at `13:00Z` in October shows
@@ -256,14 +307,16 @@ midnight.
 
 ## Acceptance (from [02-events-list.md](../design/screens/02-events-list.md))
 
-- [ ] Upcoming events sorted soonest first.
+- [ ] Only upcoming and ongoing events are listed, soonest first (filtered by the API).
 - [ ] Spots badge correct for unlimited / plenty / few / full.
 - [ ] Single column at 375px; 2/3 columns at `sm`/`lg`.
 - [ ] Loading, empty and API-error states match the spec.
-- Deferred: "You're in" (M3); search, date range and past view, and the URL reflecting
-  them (M6).
+- Deferred: "You're in" (M3); search, date range and the URL reflecting them (M6). The public
+  list has no past view.
 
 ## Open questions
 
-- None blocking. If you'd rather not show a temporary "upcoming" filter (decision 3),
-  say so and step 8 lists everything with "Ended" badges instead.
+- The public-list mockups (`EventsDesktop`, `EventsDesktopDark`, `EventsMobile`) still show
+  the "Show past events" link / Upcoming-Past switch, and `ManageEventsDesktop` doesn't yet
+  show the switch the manage-events spec now has. Update them on the canvas and re-sync
+  `docs/design/mockups/` (see its README).

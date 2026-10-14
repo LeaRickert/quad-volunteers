@@ -73,7 +73,7 @@ the build order is in [design/roadmap.md](design/roadmap.md).
 | ID | Story | Priority | Spec |
 |---|---|---|---|
 | W-1 | As a volunteer, I want to browse upcoming events with date, location and spots left so that I can find one that fits. | Must | [events list](design/screens/02-events-list.md) |
-| W-2 | As a volunteer, I want to search by title or location, filter by date, and see past events. | Should | [events list](design/screens/02-events-list.md) |
+| W-2 | As a volunteer, I want to search by title or location and filter by date. | Should | [events list](design/screens/02-events-list.md) |
 | W-3 | As a volunteer, I want an event page with full details and one clear Join / Cancel action. | Must | [event detail](design/screens/03-event-detail.md) |
 | W-4 | As a volunteer, I want a list of my upcoming and past sign-ups, and to cancel from there. | Must | [my sign-ups](design/screens/04-my-signups.md) |
 | W-5 | As an organizer, I want to create, edit and delete events with clear validation errors. | Must | [manage events](design/screens/05-manage-events.md) |
@@ -82,7 +82,7 @@ the build order is in [design/roadmap.md](design/roadmap.md).
 | W-8 | As a developer, I want a "Viewing as" picker so that I can try every role before sign-in exists. | Must | [layout & header](design/screens/01-layout-header.md) |
 
 API work this phase needs is listed in [design/api-changes.md](design/api-changes.md):
-`signupCount` and search/date/past filters on `GET /events`.
+`signupCount` and filters on `GET /events` (upcoming by default, `past` for organizers, search and date range).
 
 ## Phase 3: Authentication & permissions ⬜
 

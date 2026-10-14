@@ -190,6 +190,9 @@ Nest generators (run from `apps/api`): `npx nest g resource <name>`,
 - Cancelling deletes the row; spots taken = row count; `capacity: null` = unlimited.
 - `PATCH /events/:id` with `capacity` below the current sign-up count → 409.
 - Capacity is race-safe (transaction + row lock); verified with 10 parallel sign-ups.
+- `GET /events` returns upcoming and ongoing events (`endsAt >= now`) by default, each
+  with a computed `signupCount` (`@VirtualColumn`); `?past=true` returns ended events,
+  most recent first (`ListEventsQueryDto`). `GET /events/:id` returns past events too.
 
 ### Done: Users & Events CRUD API
 

@@ -8,10 +8,12 @@ import {
   Delete,
   ParseUUIDPipe,
   HttpCode,
+  Query,
 } from '@nestjs/common';
 import { EventsService } from './events.service.js';
 import { CreateEventDto } from './dto/create-event.dto.js';
 import { UpdateEventDto } from './dto/update-event.dto.js';
+import { ListEventsQueryDto } from './dto/list-events-query.dto.js';
 
 @Controller('events')
 export class EventsController {
@@ -23,8 +25,8 @@ export class EventsController {
   }
 
   @Get()
-  findAll() {
-    return this.eventsService.findAll();
+  findAll(@Query() query: ListEventsQueryDto) {
+    return this.eventsService.findAll(query);
   }
 
   @Get(':id')

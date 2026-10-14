@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { DataSource, LessThan, MoreThanOrEqual } from 'typeorm';
 import { type Mock, vi } from 'vitest';
 import { EventsService } from './events.service.js';
 import { Event } from './entities/event.entity.js';
@@ -113,13 +113,47 @@ describe('EventsService', () => {
   });
 
   describe('findAll', () => {
-    it('returns events ordered by start time, then title', async () => {
+    const now = new Date('2026-06-01T12:00:00Z');
+
+    beforeEach(() => {
+      vi.useFakeTimers({ toFake: ['Date'] });
+      vi.setSystemTime(now);
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it('returns upcoming and ongoing events, ordered by start time then title', async () => {
       const events = [makeEvent(), makeEvent({ title: 'park cleanup' })];
       repo.find.mockResolvedValue(events);
 
       await expect(service.findAll()).resolves.toEqual(events);
       expect(repo.find).toHaveBeenCalledWith({
+        where: { endsAt: MoreThanOrEqual(now) },
         order: { startsAt: 'ASC', title: 'ASC' },
+      });
+    });
+
+    it('treats past: false the same as the default', async () => {
+      repo.find.mockResolvedValue([]);
+
+      await service.findAll({ past: false });
+
+      expect(repo.find).toHaveBeenCalledWith({
+        where: { endsAt: MoreThanOrEqual(now) },
+        order: { startsAt: 'ASC', title: 'ASC' },
+      });
+    });
+
+    it('returns ended events, most recent first, with past: true', async () => {
+      const events = [makeEvent()];
+      repo.find.mockResolvedValue(events);
+
+      await expect(service.findAll({ past: true })).resolves.toEqual(events);
+      expect(repo.find).toHaveBeenCalledWith({
+        where: { endsAt: LessThan(now) },
+        order: { startsAt: 'DESC', title: 'ASC' },
       });
     });
   });

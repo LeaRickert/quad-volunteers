@@ -112,7 +112,7 @@ Server Components unless marked **client**.
 | `ErrorSummary` | Error message at the top of a form: "Please fix 3 problems before saving." with links to each field |
 | `InlineMessage` | `success` (gold-tint background, gold-400 border, check icon) · `error` (red-tint, red-400 border, alert icon) · `info` (white, gray-500 border, info icon). `role="status"`, `aria-live="polite"` |
 | `ConfirmButton` **client** | First click reveals a red-tint panel: question (15/600), consequence line, `danger` confirm + `secondary` keep. Focus moves to the confirm button |
-| `Segmented` | Upcoming / Past switch: gray-300 track; active item is a white raised pill |
+| `Segmented` | Upcoming / Past switch (manage events only): gray-300 track; active item is a white raised pill |
 | `EmptyState` | White card with dashed gray-500 border, 52px icon circle, title (17/600), one sentence, one action |
 | `DataTable` | White card, gray-300 header row (12px uppercase), 1px gray-400 row rules, horizontal scroll when narrow |
 | `NotAllowed` | Centered card: red-tint lock icon, "This page is for organizers", explanation, "Back to events" |

@@ -22,7 +22,9 @@ Mobile                                   Desktop (lg)
 - Table columns: **Event** (title link + location), **Date** (date + time), **Sign-ups**
   (`7 / 20` + mini capacity bar, or "14 · no limit"), and actions ("Edit" secondary +
   icon-only delete, both 36px).
-- Shows upcoming and past (toggle like the public list), soonest first.
+- Shows upcoming events by default, soonest first, with an Upcoming / Past switch
+  (`Segmented`) that requests `GET /events?past=true` (most recent first). This is the only
+  screen with a past view.
 - Title links to the public detail page (where attendees are listed).
 - Delete uses `ConfirmButton`: "Delete Beach cleanup? 7 sign-ups will be removed."
 - Flash messages via search params: `?saved=1` → "Event saved.", `?deleted=1` → "Event deleted."

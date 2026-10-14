@@ -6,8 +6,9 @@ import {
 } from '@nestjs/common';
 import { CreateEventDto } from './dto/create-event.dto.js';
 import { UpdateEventDto } from './dto/update-event.dto.js';
+import { ListEventsQueryDto } from './dto/list-events-query.dto.js';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, LessThan, MoreThanOrEqual, Repository } from 'typeorm';
 import { Event } from './entities/event.entity.js';
 import { Signup } from '../signups/entities/signup.entity.js';
 @Injectable()
@@ -23,12 +24,13 @@ export class EventsService {
     return await this.eventsRepository.save(event);
   }
 
-  findAll() {
+  // Upcoming and ongoing events (endsAt >= now), soonest first; with past: true, the
+  // ended ones, most recent first.
+  findAll({ past = false }: ListEventsQueryDto = {}) {
+    const now = new Date();
     return this.eventsRepository.find({
-      order: {
-        startsAt: 'ASC',
-        title: 'ASC',
-      },
+      where: { endsAt: past ? LessThan(now) : MoreThanOrEqual(now) },
+      order: { startsAt: past ? 'DESC' : 'ASC', title: 'ASC' },
     });
   }
 

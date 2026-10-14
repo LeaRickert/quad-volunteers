@@ -1501,6 +1501,148 @@
           ]
         },
         {
+          "name": "List events (default): upcoming only",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/events",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "events"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
+                  "const ids = pm.response.json().map((e) => e.id);",
+                  "const future = pm.collectionVariables.get(\"signupEventId\");",
+                  "const past = pm.collectionVariables.get(\"pastEventId\");",
+                  "pm.test(\"includes the future event\", () => pm.expect(ids).to.include(future));",
+                  "pm.test(\"excludes the past event\", () => pm.expect(ids).to.not.include(past));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List events ?past=true: ended only",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/events?past=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "events"
+              ],
+              "query": [
+                {
+                  "key": "past",
+                  "value": "true"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
+                  "const ids = pm.response.json().map((e) => e.id);",
+                  "const future = pm.collectionVariables.get(\"signupEventId\");",
+                  "const past = pm.collectionVariables.get(\"pastEventId\");",
+                  "pm.test(\"includes the past event\", () => pm.expect(ids).to.include(past));",
+                  "pm.test(\"excludes the future event\", () => pm.expect(ids).to.not.include(future));",
+                  "pm.test(\"every event has ended\", () => pm.response.json().forEach((e) => pm.expect(new Date(e.endsAt).getTime()).to.be.below(Date.now())));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List events ?past=false: same as default",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/events?past=false",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "events"
+              ],
+              "query": [
+                {
+                  "key": "past",
+                  "value": "false"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
+                  "const ids = pm.response.json().map((e) => e.id);",
+                  "const future = pm.collectionVariables.get(\"signupEventId\");",
+                  "const past = pm.collectionVariables.get(\"pastEventId\");",
+                  "pm.test(\"includes the future event\", () => pm.expect(ids).to.include(future));",
+                  "pm.test(\"excludes the past event\", () => pm.expect(ids).to.not.include(past));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List events ?past=maybe (400)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/events?past=maybe",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "events"
+              ],
+              "query": [
+                {
+                  "key": "past",
+                  "value": "maybe"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"400 Bad Request\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
           "name": "Sign up C: event full (409)",
           "request": {
             "method": "POST",

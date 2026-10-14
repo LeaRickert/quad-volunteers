@@ -14,20 +14,25 @@ Add `signupCount: number` to every event returned by `GET /events` and `GET /eve
 - The UI derives "spots left" = `capacity - signupCount` (or "Unlimited" when
   `capacity` is null).
 
-## 2. Search, date range and past events on `GET /events` (needed by: events list)
+## 2. Filters on `GET /events` (needed by: events list, manage events)
 
-New query DTO `ListEventsQueryDto` (validated by the global `ValidationPipe`):
+New query DTO `ListEventsQueryDto` (validated by the global `ValidationPipe`). It ships in
+two parts: **2a** (`past`, in web milestone M1) and **2b** (`q`, `from`, `to`, in M6).
+The global pipe has `forbidNonWhitelisted`, so a param is a 400 until its part ships.
 
 | Param | Type | Meaning |
 |---|---|---|
-| `q` | string, optional, trimmed, max 100 | Case-insensitive match on `title` or `location` (`ILIKE`) |
-| `from` | ISO date, optional | Events starting on/after this date |
-| `to` | ISO date, optional | Events starting on/before the end of this date |
-| `past` | boolean, optional (default `false`) | `false`: upcoming and ongoing (`endsAt >= now`), soonest first. `true`: ended events (`endsAt < now`), most recent first |
+| `q` **(2b)** | string, optional, trimmed, max 100 | Case-insensitive match on `title` or `location` (`ILIKE`) |
+| `from` **(2b)** | ISO date, optional | Events starting on/after this date |
+| `to` **(2b)** | ISO date, optional | Events starting on/before the end of this date |
+| `past` **(2a, done)** | boolean, optional (default `false`) | `false`: upcoming and ongoing (`endsAt >= now`), soonest first. `true`: ended events (`endsAt < now`), most recent first |
 
 - Query strings are strings: use `@Type(() => Date)` for dates and a `@Transform` for
   `past=true|false`. `from > to` → 400.
 - Response shape stays an array (no pagination yet).
+- **The default changes `GET /events`:** it no longer returns ended events. The public
+  events list never shows a past toggle; only manage events (M7) sends `past=true`.
+  `GET /events/:id` and the sign-up endpoints still work for past events.
 
 ## 3. No change needed (already supported)
 

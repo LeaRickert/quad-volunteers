@@ -11,7 +11,7 @@ src/app/
 ├── layout.tsx                 # html/body, fonts, <Header/>
 ├── page.tsx                   # redirect('/events')
 ├── events/
-│   ├── page.tsx               # Events list (searchParams: q, from, to, past)
+│   ├── page.tsx               # Events list (searchParams: q, from, to)
 │   ├── loading.tsx            # card skeletons
 │   ├── error.tsx              # "Couldn't load events" + retry (client)
 │   └── [id]/

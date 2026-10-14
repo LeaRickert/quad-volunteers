@@ -1,22 +1,17 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { EventsController } from './events.controller.js';
 import { EventsService } from './events.service.js';
-import { Event } from './entities/event.entity.js';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { vi } from 'vitest';
 
 describe('EventsController', () => {
   let controller: EventsController;
+  let service: { findAll: ReturnType<typeof vi.fn> };
 
   beforeEach(async () => {
+    service = { findAll: vi.fn().mockResolvedValue([]) };
     const module: TestingModule = await Test.createTestingModule({
       controllers: [EventsController],
-      providers: [
-        EventsService,
-        // Stand-in for the real TypeORM repository so no database is needed.
-        { provide: getRepositoryToken(Event), useValue: {} },
-        { provide: DataSource, useValue: {} },
-      ],
+      providers: [{ provide: EventsService, useValue: service }],
     }).compile();
 
     controller = module.get<EventsController>(EventsController);
@@ -24,5 +19,15 @@ describe('EventsController', () => {
 
   it('should be defined', () => {
     expect(controller).toBeDefined();
+  });
+
+  describe('findAll', () => {
+    it('passes the query to the service and returns its result', async () => {
+      const events = [{ id: '1' }];
+      service.findAll.mockResolvedValue(events);
+
+      await expect(controller.findAll({ past: true })).resolves.toBe(events);
+      expect(service.findAll).toHaveBeenCalledWith({ past: true });
+    });
   });
 });

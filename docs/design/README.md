@@ -79,8 +79,8 @@ hiding is **cosmetic** until the API enforces roles.
 | Header | White, 3px red top rule, red underline on the active nav item |
 | Typeface / icons | Geist / Lucide outline |
 | Devices | Mobile-first |
-| Events list | Cards grid, spots-left badge, "You're signed up" marker, past-events toggle, search/filter |
-| Filtering | Done by the API (`GET /events?q=&from=&to=&past=`) |
+| Events list | Cards grid, spots-left badge, "You're signed up" marker, search/filter (upcoming events only) |
+| Filtering | Done by the API (`GET /events?q=&from=&to=`; `past=true` is used only by manage events) |
 | Attendees | Volunteers see a count, organizers/admins see names and emails and can remove people |
 | Forms | Dedicated pages (`/manage/.../new`, `/manage/.../[id]/edit`) |
 | Confirmation | Two-step confirm for cancel/delete |
