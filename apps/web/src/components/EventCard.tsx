@@ -40,7 +40,7 @@ export default function EventCard({
         </div>
         <div className="flex items-start gap-2">
           <MapPin size={16} aria-hidden className="mt-0.5 shrink-0 text-muted" />
-          <span className="min-w-0 break-words">{event.location}</span>
+          <span className="min-w-0 wrap-break-word">{event.location}</span>
         </div>
       </div>
 

@@ -113,7 +113,8 @@ export default function DebugPage() {
           Every component state with hand-made data. Development only. Dark mode
           follows the OS, so switch it (or emulate it in DevTools) to check
           both. Times are shown in {timeZone}; the page pretends it is{" "}
-          {DEBUG_NOW.toISOString()}.
+          {DEBUG_NOW.toISOString()}.{" "}
+          Whole screens: <Link href="/debug/event-detail" className="underline">event detail</Link>.
         </p>
       </header>
 

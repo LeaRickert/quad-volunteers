@@ -114,7 +114,7 @@ Files: `lib/api.ts`, `lib/api.spec.ts` (new), `vitest.config.mts`.
   About in column 1, the card in column 2 spanning both rows with
   `lg:self-start lg:sticky lg:top-6` (the card stays in view while the description scrolls).
 - Header: `ArrowLeft` "All events" link to `/events`; eyebrow `formatEyebrow`; `h1`
-  (34px/600 on desktop, 26px on mobile per the design system); meta rows with
+  (36px/600 on desktop, 24px on mobile: standard `text-4xl` / `text-2xl`, a deliberate change from the mockup's 34px / 26px); meta rows with
   `Calendar` (`formatDateLong`), `Clock` (`formatTimeRange`), `MapPin` (location); icons are
   `aria-hidden`. Long titles and locations wrap (`break-words`).
 - "About this event" `h2` and the description with `whitespace-pre-line` (it's plain text from

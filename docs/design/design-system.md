@@ -64,7 +64,7 @@ Already loaded by the Next.js template (`next/font`).
 | Style | Spec | Use |
 |---|---|---|
 | Page title | 30px / 600 / −2% (mobile 26px) | `h1` |
-| Detail title | 34px / 600 / −2% (mobile 26px) | Event detail `h1` |
+| Detail title | 36px / 600 (`text-4xl`; mobile 24px, `text-2xl`) | Event detail `h1`. Standard Tailwind sizes on purpose, not the mockup's 34px / 26px |
 | Section / card title | 18px / 600 | `h2`, event cards |
 | Body | 15px / 400 / line-height 1.6 for prose | Descriptions, forms |
 | Meta | 13–14px / 400, gray-600–700 | Times, locations, counts |
