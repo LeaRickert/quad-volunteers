@@ -1,8 +1,31 @@
 # Plan: Web M2, Event detail (read-only)
 
-**Status: planned.** Third milestone of Phase 2 (see [roadmap](../design/roadmap.md)).
+**Status: implemented.** Third milestone of Phase 2 (see [roadmap](../design/roadmap.md)).
 Screen spec: [event detail](../design/screens/03-event-detail.md). Builds on
 [M1](web-m1-events-list.md); the cards already link to `/events/[id]`.
+
+## Deviations from the plan as first written
+
+- **`getSignupSummary` returns `{ strong, rest }`**, not one string, so the new
+  `SignupSummaryText` component can bold the first part. Its spec joins them to assert on the
+  rendered sentence.
+- **`CapacityBar` `lg` is 12px**, not 8px (a deliberate change from the mockup), and the bar is
+  hidden for ended events as well as unlimited ones.
+- **Standard Tailwind heading sizes:** the detail `h1` is `text-2xl lg:text-4xl` (24px / 36px),
+  not 26px / 34px. The events list `h1` moved to `text-2xl sm:text-4xl` to match.
+- **`InlineMessage` `success` and `error` use palette names with `dark:` overrides** instead of
+  new semantic tokens, because the gold and red tints have no token. This is a documented
+  exception to the semantic-token rule. `title` is required.
+- **The back link lives in `page.tsx`**, not `EventDetail`, so the component can be rendered on
+  `/debug` without a link out of the page.
+- **`/debug/event-detail` is its own page** (sample data in `detailEvents`, linked from
+  `/debug`) instead of a section on `/debug`, which was getting long.
+- **`DetailSkeleton`** lives in `components/skeleton/` next to `CardSkeleton`. Its row heights
+  were measured from the real page, and it includes a placeholder for the back link.
+- **Full and ended states** use an `info` `InlineMessage` (the full one with a "Browse other
+  events" link below it). The availability card is an `aside` with `aria-label="Availability"`,
+  and `not-found.tsx` / `error.tsx` carry an `sr-only` `h1`.
+- **Small:** `EventCard`'s location uses `wrap-break-word` (the Tailwind 4 class).
 
 ## Goal
 
@@ -154,46 +177,45 @@ Files: `lib/api.ts`, `lib/api.spec.ts` (new), `vitest.config.mts`.
 ## Verification
 
 Automated:
-- `npm test` (API + web), `npm run lint`, `npm run build` pass; build output shows
-  `ƒ /events/[id]`.
-- No API change, so no Postman change; newman still passes.
+- [x] `npm test` (API + web), `npm run lint`, `npm run build` pass; build output shows
+      `ƒ /events/[id]`.
+- [x] No API change, so no Postman change (newman not re-run).
 
 Manual (API + web running; the dev data from M1 covers every state):
-- [ ] Clicking a card opens its page; the URL is `/events/<uuid>`; the tab title is the event's
+- [x] Clicking a card opens its page; the URL is `/events/<uuid>`; the tab title is the event's
       title plus " · Quad Volunteers".
-- [ ] Arboretum (7 of 20): "**7 of 20** spots taken", "13 spots left", gold bar at 35%.
-- [ ] Food Pantry: "Last spot"; Library: "Only 2 left"; Overnight Shelter (6 of 6): "Full",
+- [x] Arboretum (7 of 20): "**7 of 20** spots taken", "13 spots left", gold bar at 35%.
+- [x] Food Pantry: "Last spot"; Library: "Only 2 left"; Overnight Shelter (6 of 6): "Full",
       dark bar, the full message and "Browse other events"; Open Campus Day: "**5** signed up",
       "Open to all", no bar.
-- [ ] An ended event (the old "Park cleanup", or one you create): "Ended", "**N volunteers**
+- [x] An ended event (the old "Park cleanup", or one you create): "Ended", "**N volunteers**
       helped out", the info message, no bar.
-- [ ] The overnight event shows "7:00 PM – Oct 31, 7:00 AM"; the dates match the list card.
-- [ ] An event with no description has no "About" section; a very long title/location wraps
+- [x] The overnight event shows "7:00 PM – Oct 31, 7:00 AM"; the dates match the list card.
+- [x] An event with no description has no "About" section; a very long title/location wraps
       with no horizontal scroll at 375px.
-- [ ] `/events/00000000-0000-0000-0000-000000000000` (valid, unknown) and `/events/abc`
+- [x] `/events/00000000-0000-0000-0000-000000000000` (valid, unknown) and `/events/abc`
       (invalid) both show "We couldn't find that event."; `curl -I` returns **200** (decision 5)
       with a `noindex` meta in the body.
-- [ ] Memoization: temporarily log in `apiFetch`; loading one detail page logs one
+- [x] Memoization: temporarily log in `apiFetch`; loading one detail page logs one
       `GET /events/:id`, not two. Remove the log.
-- [ ] Loading: temporarily delay the page 2 s; the skeleton matches the layout (no jump).
-- [ ] Error: stop the API; "We couldn't load this event." appears; restart and "Try again"
+- [x] Loading: temporarily delay the page 2 s; the skeleton matches the layout (no jump).
+- [x] Error: stop the API; "We couldn't load this event." appears; restart and "Try again"
       recovers.
-- [ ] 375px: single column, the card sits between the meta rows and About. 1024px+: two
+- [x] 375px: single column, the card sits between the meta rows and About. 1024px+: two
       columns, the card is sticky while scrolling a long description.
-- [ ] Keyboard: Tab order is back link → (card contents) → footer; focus rings visible; the
+- [x] Keyboard: Tab order is back link → (card contents) → footer; focus rings visible; the
       "Browse other events" link works.
-- [ ] Dark mode: `InlineMessage` variants, the bar and badges are legible.
-- [ ] Console: no errors or hydration warnings.
+- [x] Dark mode: `InlineMessage` variants, the bar and badges are legible.
+- [x] Console: no errors or hydration warnings.
 
 ## Acceptance (from [03-event-detail.md](../design/screens/03-event-detail.md), the parts M2 covers)
 
-- [ ] Full, ended and unlimited events render their action-area states correctly.
-- [ ] Unknown id shows the not-found page.
+- [x] Full, ended and unlimited events render their action-area states correctly.
+- [x] Unknown id shows the not-found page.
 - Deferred: join/cancel and every state that depends on the current user (M3, M4); "Attendee
   names and emails are hidden from volunteers" and the staff section (M8).
 
 ## Open questions
 
-- Decision 3 (no action placeholder) and decision 5 (`loading.tsx` costs the 404 status) are the
-  two judgment calls; say if you'd rather show a disabled "Join this event" button, or drop
-  `loading.tsx` from this route to get a real 404.
+Both judgment calls stand: no action placeholder (decision 3) and `loading.tsx` costing the
+404 status (decision 5). Revisit decision 3 when M4 adds the action area.

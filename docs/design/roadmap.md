@@ -9,7 +9,7 @@ implement them one at a time; update the docs if a decision changes.
 |---|---|---|---|---|
 | M0 ✅ | **Foundations** | Design tokens in `globals.css` (from design-system.md / `Main` mockup), `lucide-react`, root layout + header shell (static nav), `lib/api.ts`, `lib/types.ts`, `API_URL` env, `/` → `/events` | Layouts, Tailwind `@theme`, `server-only`, env vars, `redirect` | — |
 | M1 ✅ | **Events list (read-only)** | Cards with date, location, spots badge; loading and error states; `APP_TIME_ZONE` + `lib/time.ts` | Server Components fetching, `loading.tsx`, `error.tsx`, server-only config (`APP_TIME_ZONE`), unit tests with Vitest | API change 1: `signupCount`; API change 2a: `past` |
-| M2 | **Event detail (read-only)** | Detail page, capacity bar, not-found | Dynamic routes, async `params`, `notFound()`, `generateMetadata` | — |
+| M2 ✅ | **Event detail (read-only)** | Detail page, capacity bar, not-found | Dynamic routes, async `params`, `notFound()`, `generateMetadata` | — |
 | M3 | **Viewing as** | Picker, role-aware nav, "You're in" markers | `cookies()`, Server Actions, Client vs Server Components, `usePathname`, `React.cache` | — |
 | M4 | **Join & cancel** | Action area states, inline success/error, `ConfirmButton` | `useActionState`, pending UI, `refresh()`, mapping API errors | — |
 | M5 | **My sign-ups** | Upcoming/past lists with cancel | Reusing actions/components across routes | — |

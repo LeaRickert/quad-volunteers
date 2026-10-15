@@ -63,8 +63,8 @@ Already loaded by the Next.js template (`next/font`).
 
 | Style | Spec | Use |
 |---|---|---|
-| Page title | 30px / 600 / −2% (mobile 26px) | `h1` |
-| Detail title | 36px / 600 (`text-4xl`; mobile 24px, `text-2xl`) | Event detail `h1`. Standard Tailwind sizes on purpose, not the mockup's 34px / 26px |
+| Page title | 36px / 600 / tight tracking (`sm:text-4xl`; mobile 24px, `text-2xl`) | `h1`. Standard Tailwind sizes on purpose |
+| Detail title | 36px / 600 (`lg:text-4xl`; mobile 24px, `text-2xl`) | Event detail `h1`, not the mockup's 34px / 26px |
 | Section / card title | 18px / 600 | `h2`, event cards |
 | Body | 15px / 400 / line-height 1.6 for prose | Descriptions, forms |
 | Meta | 13–14px / 400, gray-600–700 | Times, locations, counts |
@@ -116,6 +116,9 @@ Server Components unless marked **client**.
 | `Segmented` | Upcoming / Past switch (manage events only): gray-300 track; active item is a white raised pill |
 | `SpotsBadge` | Maps an event's availability (`lib/spots.ts`) to a `Badge`: Open to all (outline, users icon), N spots left (neutral), Only N left / Last spot (warning, clock icon), Full, Ended (history icon) |
 | `EventGrid` | The events card grid: `repeat(auto-fill, minmax(300px, 1fr))`, 16px gap. Shared by the page and its skeleton |
+| `EventDetail` | Server Component for one event (`event`, `timeZone`, `now`, optional `children`). Header (eyebrow, `h1`, date / time / location rows), an availability `aside` card (summary, spots badge, 12px bar; full and ended `InlineMessage`s) and "About this event". One column on mobile in that order; at `lg` two columns with a sticky card (`lg:row-span-2`). `children` renders at the bottom of the card for the join / cancel action. The back link lives in the page |
+| `SignupSummaryText` | Renders `getSignupSummary`'s `{ strong, rest }`: the first part bold ("**7 of 20** spots taken") |
+| `DetailSkeleton` | Loading placeholder for the event detail page: back link, header, card and About rows with the same heights as the real ones |
 | `CardSkeleton` | Loading placeholder with the same row heights as `EventCard` (`bg-border` bars, `animate-pulse`) |
 | `EmptyState` | White card with dashed gray-500 border, 52px icon circle, title (17/600), one sentence, one action |
 | `DataTable` | White card, gray-300 header row (12px uppercase), 1px gray-400 row rules, horizontal scroll when narrow |

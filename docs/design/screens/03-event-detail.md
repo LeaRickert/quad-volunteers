@@ -85,10 +85,17 @@ between the meta rows and "About this event".
 | Not found | `not-found.tsx`: "We couldn't find that event." + link to events |
 | No sign-ups (staff) | "No volunteers yet. Share the event!" |
 
+## Built so far
+
+**M2 (read-only):** header and meta rows, the availability card (summary, badge, bar), the full
+and ended states, "About this event", loading skeleton, not-found and error states, and the
+sticky two-column layout. **Waiting:** every state that depends on the current user (M3),
+join / cancel and inline feedback (M4), and the staff section (M8).
+
 ## Acceptance criteria
 
 - [ ] Every action-area state above renders correctly (test by switching users and editing dates/capacity).
 - [ ] Join/cancel work, update the capacity bar, and show inline feedback.
 - [ ] Full and duplicate sign-ups show the API's 409 message inline (e.g. when two tabs race).
 - [ ] Attendee names and emails are hidden from volunteers.
-- [ ] Unknown id shows the not-found page.
+- [x] Unknown id shows the not-found page. (M2)
